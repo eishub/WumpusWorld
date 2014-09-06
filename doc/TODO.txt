@@ -1,0 +1,8 @@
+References are to the 2nd edition of Artificial Intelligence: A Modern Approach by Russell and Norvig.
+
+1. Add the Release action. 
+On p. 258 the Release action is mentioned as one of the possible actions in the wumpus world. This action, as described on
+http://www.cis.temple.edu/~ingargio/cis587/readings/wumpus.shtml, allows the agent to release an object it is holding.
+
+Minor issues:
+a. Rename Project WumpusEnvironment to WumpusWorld; rename wumpusenv.jar to WumpusWorld.jar. 
