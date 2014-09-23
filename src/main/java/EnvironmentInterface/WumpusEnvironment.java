@@ -1,5 +1,9 @@
 package EnvironmentInterface;
 
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -19,8 +23,6 @@ import eis.iilang.Identifier;
 import eis.iilang.Numeral;
 import eis.iilang.Parameter;
 import eis.iilang.Percept;
-
-import static eis.EIDefaultImpl.*;
 
 /**
  * <p>
@@ -86,7 +88,8 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	/**
 	 * Main method to start Wumpus environment stand alone.
 	 * 
-	 * @param args arguments
+	 * @param args
+	 *            arguments
 	 */
 	public static void main(String[] args) {
 		new WumpusEnvironment();
@@ -152,9 +155,8 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 * Notify environment listeners of environment event.
 	 * 
 	 * @param state
-	 *            environment event.
-	 * see EIDefaultImpl.
-     * TODO Link @see not working
+	 *            environment event. see EIDefaultImpl. TODO Link @see not
+	 *            working
 	 */
 	public void notifyStateChange(EnvironmentState state) {
 		if (state != getState()) {
@@ -320,13 +322,15 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		world.setInterface(this);
 		// set up needs the interface to register entity
 		world.setUp(guimode);
-		try {
-			world.getApplication()
-					.getEditor()
-					.loadFrom(getClass().getClassLoader().getResource(filename));
-		} catch (Exception e) {
+		URL url = getClass().getProtectionDomain().getCodeSource()
+				.getLocation();
+		Path p = Paths.get(url.getFile());
+		File mapfile = p.getParent().resolve(filename).toFile();
+		if (!mapfile.exists()) {
 			System.out.println("Warning: wumpus environment can't open map "
-					+ filename);
+					+ mapfile);
+		} else {
+			world.getApplication().getEditor().loadFrom(mapfile);
 		}
 	}
 
