@@ -28,8 +28,10 @@ import EnvironmentInterface.WumpusEnvironment;
 import eis.iilang.EnvironmentState;
 
 /**
- * <p>WumpusWorld is the main Applet that starts the Wumpus simulator and world
- * editor. </p>
+ * <p>
+ * WumpusWorld is the main Applet that starts the Wumpus simulator and world
+ * editor.
+ * </p>
  * <p>
  * On macintosh, this application works stable on Java 1.4.2 and higher. Minimal
  * version details: "1.4.2_09". Java(TM) 2 Runtime Environment, Standard Edition
@@ -42,12 +44,14 @@ import eis.iilang.EnvironmentState;
  * $CLASSPATH\:/wumpus
  * </p>
  * 
- * <p>see {link http://www-cse.uta.edu/~holder/courses/cse5361/wumpus.html}.
- *      Extensive information is available on {link http
- *      ://www.kr.tuwien.ac.at/students/prak_wumpusjava/simulator/Welcome.html}
- *      and {link http://cl3512.inf.tu-dresden.de:8180/TomcatFlux/wumpus/}.</p>
+ * <p>
+ * see {link http://www-cse.uta.edu/~holder/courses/cse5361/wumpus.html}.
+ * Extensive information is available on {link http
+ * ://www.kr.tuwien.ac.at/students/prak_wumpusjava/simulator/Welcome.html} and
+ * {link http://cl3512.inf.tu-dresden.de:8180/TomcatFlux/wumpus/}.
+ * </p>
  *
- *      TODO Links not working
+ * TODO Links not working
  */
 @SuppressWarnings("serial")
 public class WumpusWorld extends Panel {
@@ -61,7 +65,8 @@ public class WumpusWorld extends Panel {
 	/**
 	 * Main method to start Wumpus environment stand alone.
 	 * 
-	 * @param args DOC
+	 * @param args
+	 *            DOC
 	 */
 	public static void main(String[] args) {
 		getInstance().setUp(true);
@@ -86,11 +91,9 @@ public class WumpusWorld extends Panel {
 	/**
 	 * Create or get a reference to the unique singleton Wumpus world.
 	 * 
-	 * @return singleton Wumpus world object.
-	 * see Threadsafe, see: {link http
-	 *      ://en.wikipedia.org/wiki/Singleton_pattern
-	 *      #The_solution_of_Bill_Pugh}.
-     *      TODO Links not working
+	 * @return singleton Wumpus world object. see Threadsafe, see: {link http
+	 *         ://en.wikipedia.org/wiki/Singleton_pattern
+	 *         #The_solution_of_Bill_Pugh}. TODO Links not working
 	 */
 	public static WumpusWorld getInstance() {
 		return WumpusWorldHolder.INSTANCE;
@@ -126,9 +129,8 @@ public class WumpusWorld extends Panel {
 	}
 
 	/**
-	 * See {link WumpusEnvironment#notifyStateChange(EnvironmentEvent)}. This
-	 * is using a hard observer pattern.
-     * TODO Link is broken.
+	 * See {link WumpusEnvironment#notifyStateChange(EnvironmentEvent)}. This is
+	 * using a hard observer pattern. TODO Link is broken.
 	 * 
 	 * @param state
 	 *            is the new {@link EnvironmentState}.
@@ -152,13 +154,12 @@ public class WumpusWorld extends Panel {
 	/**
 	 * Sets up a new Wumpus world.
 	 * 
-	 * @param guimode 
+	 * @param guimode
 	 */
 	public void setUp(boolean guimode) {
-		//System.out.println("Setting up WUMPUS WORLD");
+		// System.out.println("Setting up WUMPUS WORLD");
 		if (wumpusApplication != null) {
-			wumpusApplication.dispose();
-			wumpusApplication.setVisible(false);
+			wumpusApplication.closeWindows();
 		}
 		wumpusApplication = new WumpusApp(this, guimode);
 	}
@@ -185,7 +186,8 @@ public class WumpusWorld extends Panel {
 	/**
 	 * handle edit event
 	 * 
-	 * @param event event
+	 * @param event
+	 *            event
 	 */
 	public void mouseClicked(Event event) {
 		wumpusApplication.show();

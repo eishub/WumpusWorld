@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Properties;
 
+import javax.swing.SwingUtilities;
+
 import eis.iilang.EnvironmentState;
 
 /**
@@ -300,8 +302,23 @@ public class WumpusApp extends Frame {
 		if (isGuiVisible()) {
 			saveWindowSettings();
 		}
-		dispose();
-		setVisible(false);
+		closeWindows();
+	}
+
+	/**
+	 * Close our window. Effect will be later as this uses
+	 * SwingUtilities.invokeLater.
+	 * 
+	 * @param app
+	 */
+	protected void closeWindows() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				dispose();
+				setVisible(false);
+			}
+		});
 	}
 
 	private void saveWindowSettings() {
