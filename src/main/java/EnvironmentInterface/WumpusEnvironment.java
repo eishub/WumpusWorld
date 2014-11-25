@@ -1,6 +1,7 @@
 package EnvironmentInterface;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -324,7 +325,12 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		world.setUp(guimode);
 		URL url = getClass().getProtectionDomain().getCodeSource()
 				.getLocation();
-		Path p = Paths.get(url.getFile());
+		Path p;
+		try {
+			p = Paths.get(url.toURI());
+		} catch (URISyntaxException e) {
+			throw new ManagementException("failed to get path to " + url);
+		}
 		File mapfile = p.getParent().resolve(filename).toFile();
 		if (!mapfile.exists()) {
 			System.out.println("Warning: wumpus environment can't open map "
