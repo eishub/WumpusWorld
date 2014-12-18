@@ -366,6 +366,9 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	@Override
 	protected Percept performEntityAction(String entity, Action action)
 			throws ActException {
+		if (getState() != EnvironmentState.RUNNING) {
+			throw new ActException("environment is not running");
+		}
 		try {
 			switch (WumpusAction.toKey(action.getName())) {
 			case CLIMB:
@@ -414,17 +417,4 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		}
 	}
 
-	/**
-	 * Queries the interface of a certain property.
-	 * 
-	 * @param property
-	 * @return
-	 */
-	/*
-	 * public String queryProperty(String property) throws QueryException {
-	 * switch (WumpusQuery.toKey(property)) { case REWARD: // return the reward
-	 * from the last action return new
-	 * Integer(getApplication().getRunner().getReward()).toString(); default: //
-	 * UNKNOWN throw new QueryException("unknown query: " + property); } }
-	 */
 }
