@@ -257,26 +257,22 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void init(Map<String, Parameter> parameters)
 			throws ManagementException {
 		setState(EnvironmentState.INITIALIZING);
-		parseParameters(parameters);
-		setState(EnvironmentState.PAUSED);
+		reset(parameters);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	// @Override
+	@Override
 	public void reset(Map<String, Parameter> parameters)
 			throws ManagementException {
 
 		parseParameters(parameters);
 		setState(EnvironmentState.PAUSED);
+		// notify EIS interface, if present, that entity has been created
+		WumpusWorld.getInstance().registerEntity();
+
 	}
 
 	/**
@@ -338,14 +334,6 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		} else {
 			world.getApplication().getEditor().loadFrom(mapfile);
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String requiredVersion() {
-		return "0.4";
 	}
 
 	/**

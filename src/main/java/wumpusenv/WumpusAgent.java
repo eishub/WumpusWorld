@@ -16,15 +16,13 @@ public class WumpusAgent {
 	 * DOC
 	 */
 	public WumpusAgent() {
-		// notify EIS interface, if present, that entity has been created
-		WumpusWorld.getInstance().registerEntity();
 	}
 
 	/**
 	 * The method action returns the action number that is associated with the
 	 * action string pAction.
 	 * 
-	 * @param action 
+	 * @param action
 	 */
 	public int action(String action) {
 
