@@ -8,8 +8,8 @@
 		<environmentname>wumpusworld</environmentname>
 		<mainclass>EnvironmentInterface.WumpusEnvironment</mainclass>
 	</properties>
-	
-	
+
+
 	<groupId>eishub</groupId>
 	<artifactId>wumpusworld</artifactId>
 	<version>1.3.0-SNAPSHOT</version>
@@ -19,14 +19,26 @@
 A gridworld dungeon with gold, pits, and a dangerous beast. Your agent has to collect the gold and find back the entrance.</description>
 	<url>http://www.github.com/eishub/${environmentname}</url>
 
-	
-	
+
+
 	<licenses>
 		<license>
 			<name>The GNU General Public License, Version 3.0</name>
 			<url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
 		</license>
 	</licenses>
+
+	<profiles>
+		<profile>
+			<id>java8-doclint-disabled</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<javadoc.opts>-Xdoclint:none</javadoc.opts>
+			</properties>
+		</profile>
+	</profiles>
 
 	<developers>
 		<developer>
@@ -72,6 +84,7 @@ A gridworld dungeon with gold, pits, and a dangerous beast. Your agent has to co
 
 	<build>
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -124,6 +137,9 @@ A gridworld dungeon with gold, pits, and a dangerous beast. Your agent has to co
 						<goals>
 							<goal>jar</goal>
 						</goals>
+						<configuration>
+							<additionalparam>${javadoc.opts}</additionalparam>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -178,7 +194,8 @@ A gridworld dungeon with gold, pits, and a dangerous beast. Your agent has to co
 				<configuration>
 					<server>github</server>
 					<!-- git commit message -->
-					<message>Maven artifacts for ${project.name} version ${project.version}</message>
+					<message>Maven artifacts for ${project.name} version
+						${project.version}</message>
 					<!-- matches distribution management repository url above -->
 					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
 					<!-- remote branch name -->
