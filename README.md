@@ -1,4 +1,0 @@
-WumpusWorld
-===========
-
-WumpusWorld
