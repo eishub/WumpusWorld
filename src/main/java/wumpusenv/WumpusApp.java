@@ -32,7 +32,6 @@ import eis.iilang.EnvironmentState;
  */
 
 public class WumpusApp extends Frame {
-
 	private static final long serialVersionUID = 8714859195624414371L;
 
 	// World editor
@@ -52,7 +51,6 @@ public class WumpusApp extends Frame {
 	private Properties preferences;
 	private Dialog errorDialog = new Dialog(this, "Error!", true);
 	private Label errorLabel = new Label("");
-	// private CheckboxMenuItem toggleDebug, toggleGC, toggleSIM;
 
 	/** observer, to be called when state channge happens */
 	WumpusWorld myObserver;
@@ -61,18 +59,17 @@ public class WumpusApp extends Frame {
 
 	/**
 	 * constructor. Takes the "parent" as observer, to call it back when a state
-	 * change happens. State changes are directly coupled to the selected panel.
-	 * If the panel is the World Editor, the mode is PAUSED, and when the panel
-	 * is the Runner, the mode is RUNNING.
-	 * 
-	 * @param showGui
-	 *            true if GUI should be shown, false if not.
+	 * change happens. State changes are directly coupled to the selected panel. If
+	 * the panel is the World Editor, the mode is PAUSED, and when the panel is the
+	 * Runner, the mode is RUNNING.
+	 *
+	 * @param showGui true if GUI should be shown, false if not.
 	 */
 	public WumpusApp(WumpusWorld obs, boolean showGui) {
 		super("Wumpus environment editor and simulator");
-		guiVisible = showGui;
+		this.guiVisible = showGui;
 		InitWumpusApp();
-		myObserver = obs;
+		this.myObserver = obs;
 	}
 
 	/**
@@ -80,9 +77,9 @@ public class WumpusApp extends Frame {
 	 */
 	public void InitWumpusApp() {
 
-		worldEditor = new WorldEditor(this);
-		runner = new Runner(this);
-		preferences = loadPrefs();
+		this.worldEditor = new WorldEditor(this);
+		this.runner = new Runner(this);
+		this.preferences = loadPrefs();
 
 		if (isGuiVisible()) {
 			setLayout(new BorderLayout());
@@ -92,17 +89,17 @@ public class WumpusApp extends Frame {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			cardLayout = new CardLayout();
+			this.cardLayout = new CardLayout();
 
-			mainPanel = new Panel();
-			mainPanel.setLayout(cardLayout);
-			mainPanel.add(WORLDED, worldEditor);
-			mainPanel.add(RUNNER, runner);
+			this.mainPanel = new Panel();
+			this.mainPanel.setLayout(this.cardLayout);
+			this.mainPanel.add(WORLDED, this.worldEditor);
+			this.mainPanel.add(RUNNER, this.runner);
 			Panel buttonPanel = new Panel();
 			buttonPanel.setLayout(new GridLayout(1, 3));
 			buttonPanel.add(new Button(WORLDED));
 			buttonPanel.add(new Button(RUNNER));
-			add("Center", mainPanel);
+			add("Center", this.mainPanel);
 			add("South", buttonPanel);
 			setMenuBar(setupMenuBar());
 
@@ -129,16 +126,16 @@ public class WumpusApp extends Frame {
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @return
 	 */
 	public Runner getRunner() {
-		return runner;
+		return this.runner;
 	}
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @return
 	 */
 	private MenuBar setupMenuBar() {
@@ -146,19 +143,19 @@ public class WumpusApp extends Frame {
 		// Menu fileMenu = new Menu("File");
 		// fileMenu.add("Quit"); // disabled
 
-		worldEditorMenu = new Menu("World Editor");
-		worldEditorMenu.add("Load world");
-		worldEditorMenu.add("Save world");
+		this.worldEditorMenu = new Menu("World Editor");
+		this.worldEditorMenu.add("Load world");
+		this.worldEditorMenu.add("Save world");
 
 		// menuBar.add(fileMenu);
-		menuBar.add(worldEditorMenu);
+		menuBar.add(this.worldEditorMenu);
 
 		return menuBar;
 	}
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @return
 	 */
 	private Properties loadPrefs() {
@@ -167,14 +164,13 @@ public class WumpusApp extends Frame {
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param pName
 	 * @return
 	 */
 	public Image getImage(String pName) {
 		try {
-			java.net.URL u = getClass().getClassLoader().getResource(
-					fPath + "/" + pName);
+			java.net.URL u = getClass().getClassLoader().getResource(fPath + "/" + pName);
 			return getToolkit().getImage(u);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -184,9 +180,9 @@ public class WumpusApp extends Frame {
 
 	/**
 	 * Closes down the Wumpus environment.
-	 * 
+	 *
 	 * First unregisters entity with EIS, if needed.
-	 * 
+	 *
 	 * @param evt
 	 */
 	@Override
@@ -205,55 +201,51 @@ public class WumpusApp extends Frame {
 
 	/**
 	 * Executes action contained in object.
-	 * 
-	 * @param event
-	 *            is ignored I think.
-	 * @param obj
-	 *            is WORLDED, RUNNER, "Load world" or ""Save World".
+	 *
+	 * @param event is ignored I think.
+	 * @param obj   is WORLDED, RUNNER, "Load world" or ""Save World".
 	 * @return {@code true} if successful; {@code false} if command failed.
 	 */
+	@Override
 	public boolean action(Event event, Object obj) {
 		if (obj == WORLDED) {
-			cardLayout.show(mainPanel, WORLDED);
+			this.cardLayout.show(this.mainPanel, WORLDED);
 			notifyObservers(EnvironmentState.PAUSED);
 			return true;
 		}
 		if (obj == RUNNER) {
-			cardLayout.show(mainPanel, RUNNER);
-			runner.setRealModel(worldEditor.getModel());
-			if (!worldEditor.getModel().gameFinished()) {
+			this.cardLayout.show(this.mainPanel, RUNNER);
+			this.runner.setRealModel(this.worldEditor.getModel());
+			if (!this.worldEditor.getModel().gameFinished()) {
 				notifyObservers(EnvironmentState.RUNNING);
 			}
 			return true;
 		}
 		if ("Load world".equals(obj)) {
-			FileDialog fd = new FileDialog(this, "Load a world",
-					FileDialog.LOAD);
+			FileDialog fd = new FileDialog(this, "Load a world", FileDialog.LOAD);
 			FilenameFilter fnf = new ExtensionFilter(".wld");
 			fd.setFilenameFilter(fnf);
-			fd.setDirectory(preferences.getProperty("homedir"));
+			fd.setDirectory(this.preferences.getProperty("homedir"));
 			fd.setFile("*.wld");
 			fd.show();
 			if (fd.getFile() != null) {
-				worldEditor
-						.loadFrom(new File(fd.getDirectory() + fd.getFile()));
+				this.worldEditor.loadFrom(new File(fd.getDirectory() + fd.getFile()));
 			}
-			cardLayout.show(mainPanel, WORLDED);
+			this.cardLayout.show(this.mainPanel, WORLDED);
 			System.out.println("New world loaded");
-			runner.reset();
+			this.runner.reset();
 			System.out.println("Runner reset");
 			return true;
 		}
 		if ("Save world".equals(obj)) {
-			FileDialog fd = new FileDialog(this, "Save a world",
-					FileDialog.SAVE);
+			FileDialog fd = new FileDialog(this, "Save a world", FileDialog.SAVE);
 			FilenameFilter fnf = new ExtensionFilter(".wld");
 			fd.setFilenameFilter(fnf);
-			fd.setDirectory(preferences.getProperty("homedir"));
+			fd.setDirectory(this.preferences.getProperty("homedir"));
 			fd.setFile("*.wld");
 			fd.show();
 			if (fd.getFile() != null) {
-				worldEditor.saveTo(new File(fd.getDirectory() + fd.getFile()));
+				this.worldEditor.saveTo(new File(fd.getDirectory() + fd.getFile()));
 			}
 			return true;
 		}
@@ -263,36 +255,30 @@ public class WumpusApp extends Frame {
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param msg
 	 */
 	public void reportError(String msg) {
-		errorLabel.setText(msg);
-		errorDialog.pack();
-		errorDialog
-				.setLocation(
-						getLocation().x
-								+ (getSize().width - errorDialog.getSize().width)
-								/ 2,
-						getLocation().y
-								+ (getSize().height - errorDialog.getSize().height)
-								/ 2);
-		errorDialog.show();
+		this.errorLabel.setText(msg);
+		this.errorDialog.pack();
+		this.errorDialog.setLocation(getLocation().x + (getSize().width - this.errorDialog.getSize().width) / 2,
+				getLocation().y + (getSize().height - this.errorDialog.getSize().height) / 2);
+		this.errorDialog.show();
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public WorldEditor getEditor() {
-		return worldEditor;
+		return this.worldEditor;
 	}
 
 	/**
 	 * Notifies observers that the state of the Wumpus environment has changed.
 	 */
 	public void notifyObservers(EnvironmentState state) {
-		myObserver.notifyStateChange(state);
+		this.myObserver.notifyStateChange(state);
 	}
 
 	/**
@@ -308,7 +294,7 @@ public class WumpusApp extends Frame {
 	/**
 	 * Close our window. Effect will be later as this uses
 	 * SwingUtilities.invokeLater.
-	 * 
+	 *
 	 * @param app
 	 */
 	protected void closeWindows() {
@@ -327,11 +313,11 @@ public class WumpusApp extends Frame {
 
 	/**
 	 * check if GUI should be visible.
-	 * 
+	 *
 	 * @return true if GUI is visible, false if GUI should not be rendered.
 	 */
 	public boolean isGuiVisible() {
-		return guiVisible;
+		return this.guiVisible;
 	}
 }
 
@@ -343,7 +329,7 @@ class ExtensionFilter implements FilenameFilter {
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param extension
 	 */
 	public ExtensionFilter(String extension) {
@@ -353,24 +339,23 @@ class ExtensionFilter implements FilenameFilter {
 	/**
 	 * DOC
 	 */
+	@Override
 	public boolean accept(File dir, String name) {
-		return (name.indexOf(extension) != -1);
+		return (name.indexOf(this.extension) != -1);
 	}
-
 }
 
 /**
  * DOC
  */
 class PrefDialog extends Dialog {
-
 	private static final long serialVersionUID = 4093273691750133525L;
 
 	protected TextField homeDir = new TextField();
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param owner
 	 */
 	public PrefDialog(Frame owner) {
@@ -379,7 +364,6 @@ class PrefDialog extends Dialog {
 		Panel prefs = new Panel();
 		prefs.setLayout(new FlowLayout());
 		prefs.add(new Label("Home directory"));
-		prefs.add(homeDir);
+		prefs.add(this.homeDir);
 	}
-
 }

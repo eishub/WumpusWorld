@@ -10,7 +10,6 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 
 /**
@@ -20,14 +19,12 @@ import java.awt.Rectangle;
  * a pointer back to the parent {@link CaveView} to handle listener calllbacks.
  */
 class WumpusCanvas extends Canvas {
-
+	private static final long serialVersionUID = 1L;
 	private int zoom, xFit, yFit;
-
 	/**
 	 * This is the current size of a square (pixels ?)
 	 */
 	private int squareSize;
-
 	/**
 	 * The grid position of the middle of the canvas. (block position)
 	 */
@@ -40,31 +37,29 @@ class WumpusCanvas extends Canvas {
 	private Graphics offGraphics;
 	private Dimension offDimension;
 	private Point mouseStart, dragStart, dragEnd;
-	private Image agentImg[], groundImg, wallImg, goldImg, wumpusImg,
-			breezeImg, smellImg;
+	private Image agentImg[], groundImg, wallImg, goldImg, wumpusImg, breezeImg, smellImg;
 	private boolean scaleImageMode;
-	private Polygon zoominpijltje, zoomuitpijltje;
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param wcListener
 	 */
 	public WumpusCanvas(CaveView wcListener) {
 		super();
 		this.wcListener = wcListener;
-		scaleImageMode = true;
-		agentImg = new Image[4];
-		agentImg[0] = getImage("agent0.gif");
-		agentImg[1] = getImage("agent90.gif");
-		agentImg[2] = getImage("agent180.gif");
-		agentImg[3] = getImage("agent270.gif");
-		wallImg = getImage("wall.gif");
-		goldImg = getImage("gold.gif");
-		wumpusImg = getImage("wumpus.gif");
-		groundImg = getImage("ground.gif");
-		breezeImg = getImage("breeze.gif");
-		smellImg = getImage("smell.gif");
+		this.scaleImageMode = true;
+		this.agentImg = new Image[4];
+		this.agentImg[0] = getImage("agent0.gif");
+		this.agentImg[1] = getImage("agent90.gif");
+		this.agentImg[2] = getImage("agent180.gif");
+		this.agentImg[3] = getImage("agent270.gif");
+		this.wallImg = getImage("wall.gif");
+		this.goldImg = getImage("gold.gif");
+		this.wumpusImg = getImage("wumpus.gif");
+		this.groundImg = getImage("ground.gif");
+		this.breezeImg = getImage("breeze.gif");
+		this.smellImg = getImage("smell.gif");
 		// agentImg[0] = getImage("agent0");
 		// agentImg[1] = getImage("agent90");
 		// agentImg[2] = getImage("agent180");
@@ -76,274 +71,279 @@ class WumpusCanvas extends Canvas {
 		// breezeImg = getImage("breeze");
 		// smellImg = getImage("smell");
 		MediaTracker mt = new MediaTracker(this);
-		mt.addImage(agentImg[0], 0);
-		mt.addImage(agentImg[1], 1);
-		mt.addImage(agentImg[2], 2);
-		mt.addImage(agentImg[3], 3);
-		mt.addImage(wallImg, 4);
-		mt.addImage(groundImg, 5);
-		mt.addImage(goldImg, 6);
-		mt.addImage(wumpusImg, 7);
-		mt.addImage(breezeImg, 8);
-		mt.addImage(smellImg, 9);
+		mt.addImage(this.agentImg[0], 0);
+		mt.addImage(this.agentImg[1], 1);
+		mt.addImage(this.agentImg[2], 2);
+		mt.addImage(this.agentImg[3], 3);
+		mt.addImage(this.wallImg, 4);
+		mt.addImage(this.groundImg, 5);
+		mt.addImage(this.goldImg, 6);
+		mt.addImage(this.wumpusImg, 7);
+		mt.addImage(this.breezeImg, 8);
+		mt.addImage(this.smellImg, 9);
 		// mt.addImage(wallImg, 8);
 		try {
 			mt.waitForAll();
 		} catch (Exception ex) {
 			System.err.println(ex);
 		}
-		focus = new Point(1, 1);
-		zoom = 5;
-		drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
+		this.focus = new Point(1, 1);
+		this.zoom = 5;
+		this.drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
 	}
 
 	public void setScaleImagesMode(boolean b) {
-		if (scaleImageMode != b) {
-			scaleImageMode = b;
-			offGraphics = null;
+		if (this.scaleImageMode != b) {
+			this.scaleImageMode = b;
+			this.offGraphics = null;
 			repaint();
 		}
 	}
 
 	public Image getImage(String name) {
-		return wcListener.getImage(name);
+		return this.wcListener.getImage(name);
 	}
 
+	@Override
 	public void paint(Graphics g) {
 		update(g);
 	}
 
+	@Override
 	public void update(Graphics g) {
-		worldModel = wcListener.getModel();
+		this.worldModel = this.wcListener.getModel();
 		// System.out.println("updating wumpuscanvas ="+worldModel.toString());
-		drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
-		center = new Point((drawSpace.width) / 2 + drawSpace.x,
-				(drawSpace.height) / 2 + drawSpace.y);
-		if (scaleImageMode) {
-			squareSize = Math.min(drawSpace.width, drawSpace.height)
-					/ (zoom + 1);
+		this.drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
+		this.center = new Point((this.drawSpace.width) / 2 + this.drawSpace.x,
+				(this.drawSpace.height) / 2 + this.drawSpace.y);
+		if (this.scaleImageMode) {
+			this.squareSize = Math.min(this.drawSpace.width, this.drawSpace.height) / (this.zoom + 1);
 		} else {
-			squareSize = 50;
+			this.squareSize = 50;
 		}
-		xFit = drawSpace.width / squareSize + 3;
-		yFit = drawSpace.height / squareSize + 3;
+		this.xFit = this.drawSpace.width / this.squareSize + 3;
+		this.yFit = this.drawSpace.height / this.squareSize + 3;
 
-		if ((offGraphics == null) || (size().width != offDimension.width)
-				|| (size().height != offDimension.height)) {
-			offDimension = size();
-			offImage = createImage(size().width, size().height);
-			offGraphics = offImage.getGraphics();
+		if ((this.offGraphics == null) || (size().width != this.offDimension.width)
+				|| (size().height != this.offDimension.height)) {
+			this.offDimension = size();
+			this.offImage = createImage(size().width, size().height);
+			this.offGraphics = this.offImage.getGraphics();
 		}
 		// offGraphics.clipRect(0, 0, size().width, size().height);
-		offGraphics.setFont(new Font("TimesRoman", Font.PLAIN, 12));
-		offGraphics.setColor(Color.white);
-		offGraphics.fillRect(0, 0, size().width, size().height);
-		offGraphics.setColor(Color.black);
-		offGraphics.drawRect(drawSpace.x, drawSpace.y, drawSpace.width,
-				drawSpace.height);
+		this.offGraphics.setFont(new Font("TimesRoman", Font.PLAIN, 12));
+		this.offGraphics.setColor(Color.white);
+		this.offGraphics.fillRect(0, 0, size().width, size().height);
+		this.offGraphics.setColor(Color.black);
+		this.offGraphics.drawRect(this.drawSpace.x, this.drawSpace.y, this.drawSpace.width, this.drawSpace.height);
 		// offGraphics.clipRect(drawSpace.x, drawSpace.y, drawSpace.width,
 		// drawSpace.height);
-		drawGrid(offGraphics);
-		for (int x = focus.x - (xFit - 1) / 2; x < focus.x + (xFit + 1) / 2; x++) {
-			for (int y = focus.y - (yFit - 1) / 2; y < focus.y + (yFit + 1) / 2; y++) {
-				if (worldModel.contains(new Point(x, y), WorldModel.GROUND)) {
+		drawGrid(this.offGraphics);
+		for (int x = this.focus.x - (this.xFit - 1) / 2; x < this.focus.x + (this.xFit + 1) / 2; x++) {
+			for (int y = this.focus.y - (this.yFit - 1) / 2; y < this.focus.y + (this.yFit + 1) / 2; y++) {
+				if (this.worldModel.contains(new Point(x, y), WorldModel.GROUND)) {
 					try {
-						drawSquare(offGraphics, center.x - squareSize / 2
-								+ (x - focus.x) * squareSize, center.y
-								- squareSize / 2 - (y - focus.y) * squareSize,
-								worldModel.getSquare(new Point(x, y)),
-								worldModel.getAgentOrientation() % 360);
+						drawSquare(this.offGraphics,
+								this.center.x - this.squareSize / 2 + (x - this.focus.x) * this.squareSize,
+								this.center.y - this.squareSize / 2 - (y - this.focus.y) * this.squareSize,
+								this.worldModel.getSquare(new Point(x, y)),
+								this.worldModel.getAgentOrientation() % 360);
 					} catch (Exception e) {
-						new ErrorDetails(e, " on drawSquare type"
-								+ worldModel.getSquare(new Point(x, y))
-								+ "] orient: "
-								+ worldModel.getAgentOrientation() % 360);
+						new ErrorDetails(e, " on drawSquare type" + this.worldModel.getSquare(new Point(x, y))
+								+ "] orient: " + this.worldModel.getAgentOrientation() % 360);
 					}
 				}
 			}
 		}
-		if ((mouseStart != null) && (dragEnd != null)) {
-			offGraphics.setColor(Color.blue);
-			offGraphics.drawRect(Math.min(dragStart.x, dragEnd.x),
-					Math.min(dragStart.y, dragEnd.y),
-					Math.max(dragEnd.x - dragStart.x, dragStart.x - dragEnd.x),
-					Math.max(dragEnd.y - dragStart.y, dragStart.y - dragEnd.y));
+		if ((this.mouseStart != null) && (this.dragEnd != null)) {
+			this.offGraphics.setColor(Color.blue);
+			this.offGraphics.drawRect(Math.min(this.dragStart.x, this.dragEnd.x),
+					Math.min(this.dragStart.y, this.dragEnd.y),
+					Math.max(this.dragEnd.x - this.dragStart.x, this.dragStart.x - this.dragEnd.x),
+					Math.max(this.dragEnd.y - this.dragStart.y, this.dragStart.y - this.dragEnd.y));
 		}
-		offGraphics.setColor(Color.white);
-		offGraphics.fillRect(0, 0, size().width, 20);
-		offGraphics.fillRect(0, 0, 20, size().height);
-		offGraphics.fillRect(0, size().height - 19, size().width, 20);
-		offGraphics.fillRect(size().width - 19, 0, 20, size().height);
-		drawCoor(offGraphics);
-		drawZoom(offGraphics);
-		g.drawImage(offImage, 0, 0, this);
+		this.offGraphics.setColor(Color.white);
+		this.offGraphics.fillRect(0, 0, size().width, 20);
+		this.offGraphics.fillRect(0, 0, 20, size().height);
+		this.offGraphics.fillRect(0, size().height - 19, size().width, 20);
+		this.offGraphics.fillRect(size().width - 19, 0, 20, size().height);
+		drawCoor(this.offGraphics);
+		drawZoom(this.offGraphics);
+		g.drawImage(this.offImage, 0, 0, this);
 	}
 
 	private void drawGrid(Graphics g) {
-		int xStart = drawSpace.x + (center.x - squareSize / 2 - drawSpace.x)
-				% squareSize;
-		int yStart = drawSpace.y + (center.y - squareSize / 2 - drawSpace.y)
-				% squareSize;
+		int xStart = this.drawSpace.x + (this.center.x - this.squareSize / 2 - this.drawSpace.x) % this.squareSize;
+		int yStart = this.drawSpace.y + (this.center.y - this.squareSize / 2 - this.drawSpace.y) % this.squareSize;
 		g.setColor(Color.lightGray);
-		for (int x = xStart; x < drawSpace.width + drawSpace.x; x += squareSize) {
-			g.drawLine(x, drawSpace.y, x, drawSpace.y + drawSpace.height);
+		for (int x = xStart; x < this.drawSpace.width + this.drawSpace.x; x += this.squareSize) {
+			g.drawLine(x, this.drawSpace.y, x, this.drawSpace.y + this.drawSpace.height);
 		}
-		for (int y = yStart; y < drawSpace.height + drawSpace.y; y += squareSize) {
-			g.drawLine(drawSpace.x, y, drawSpace.x + drawSpace.width, y);
+		for (int y = yStart; y < this.drawSpace.height + this.drawSpace.y; y += this.squareSize) {
+			g.drawLine(this.drawSpace.x, y, this.drawSpace.x + this.drawSpace.width, y);
 		}
 	}
 
 	private void drawCoor(Graphics g) {
 		FontMetrics fm = g.getFontMetrics();
 		g.setColor(Color.black);
-		for (int x = focus.x - (xFit - 1) / 2; x < focus.x + (xFit + 1) / 2; x++) {
-			g.drawString(String.valueOf(x), center.x + (x - focus.x)
-					* squareSize - fm.stringWidth(String.valueOf(x)) / 2,
-					drawSpace.y + drawSpace.height + 5 + fm.getAscent());
+		for (int x = this.focus.x - (this.xFit - 1) / 2; x < this.focus.x + (this.xFit + 1) / 2; x++) {
+			g.drawString(String.valueOf(x),
+					this.center.x + (x - this.focus.x) * this.squareSize - fm.stringWidth(String.valueOf(x)) / 2,
+					this.drawSpace.y + this.drawSpace.height + 5 + fm.getAscent());
 		}
-		for (int y = focus.y - (yFit - 1) / 2; y < focus.y + (yFit + 1) / 2; y++) {
-			g.drawString(String.valueOf(y),
-					drawSpace.x - 5 - fm.stringWidth(String.valueOf(y)),
-					center.y - (y - focus.y) * squareSize - fm.getDescent());
+		for (int y = this.focus.y - (this.yFit - 1) / 2; y < this.focus.y + (this.yFit + 1) / 2; y++) {
+			g.drawString(String.valueOf(y), this.drawSpace.x - 5 - fm.stringWidth(String.valueOf(y)),
+					this.center.y - (y - this.focus.y) * this.squareSize - fm.getDescent());
 		}
 	}
 
 	private void drawZoom(Graphics g) {
 		int lineHeight = g.getFont().getSize();
 		int xOff = size().width - 15;
-		zoomUit = new Rectangle(xOff, 10, 10, 10);
+		this.zoomUit = new Rectangle(xOff, 10, 10, 10);
 		g.setColor(Color.blue);
 		g.fillRect(xOff, 15, 10, 2);
 		g.fillRect(xOff + 4, 11, 2, 10);
 		g.setColor(Color.black);
-		g.drawString(String.valueOf(zoom), size().width - 15, 22 + lineHeight);
+		g.drawString(String.valueOf(this.zoom), size().width - 15, 22 + lineHeight);
 		g.setColor(Color.red);
-		zoomIn = new Rectangle(xOff, 35, 10, 10);
+		this.zoomIn = new Rectangle(xOff, 35, 10, 10);
 		g.fillRect(xOff, 40, 10, 2);
 	}
 
-	private void drawSquare(Graphics g, int x, int y, int data, int orientation)
-			throws Exception {
+	private void drawSquare(Graphics g, int x, int y, int data, int orientation) throws Exception {
 		// System.out.println("drawSquare at "+x+","+y+". orientation="+orientation);
-		if (groundImg == null)
+		if (this.groundImg == null) {
 			throw new Exception("ground image not available");
-		if (smellImg == null)
+		}
+		if (this.smellImg == null) {
 			throw new Exception("smell image not available");
-		if (breezeImg == null)
+		}
+		if (this.breezeImg == null) {
 			throw new Exception("breeze image= not available");
-		if (wallImg == null)
+		}
+		if (this.wallImg == null) {
 			throw new Exception("wall image not available");
-		if (goldImg == null)
+		}
+		if (this.goldImg == null) {
 			throw new Exception("gold image not available");
-		if (wumpusImg == null)
+		}
+		if (this.wumpusImg == null) {
 			throw new Exception("wumpus image not available");
+		}
 
-		if ((data & worldModel.GROUND) == WorldModel.GROUND) {
-			if (scaleImageMode)
-				g.drawImage(groundImg, x, y, squareSize, squareSize, this);
-			else
-				g.drawImage(groundImg, x, y, this);
+		if ((data & WorldModel.GROUND) == WorldModel.GROUND) {
+			if (this.scaleImageMode) {
+				g.drawImage(this.groundImg, x, y, this.squareSize, this.squareSize, this);
+			} else {
+				g.drawImage(this.groundImg, x, y, this);
+			}
 		}
 		if ((data & WorldModel.PIT) == WorldModel.PIT) {
 			g.setColor(Color.black);
-			g.fillOval(x, y, squareSize, squareSize);
+			g.fillOval(x, y, this.squareSize, this.squareSize);
 		}
-		if ((data & worldModel.BREEZE) == WorldModel.BREEZE) {
-			if (scaleImageMode)
-				g.drawImage(breezeImg, x, y, squareSize, squareSize, this);
-			else
-				g.drawImage(breezeImg, x, y, this);
+		if ((data & WorldModel.BREEZE) == WorldModel.BREEZE) {
+			if (this.scaleImageMode) {
+				g.drawImage(this.breezeImg, x, y, this.squareSize, this.squareSize, this);
+			} else {
+				g.drawImage(this.breezeImg, x, y, this);
+			}
 		}
-		if ((data & worldModel.SMELL) == WorldModel.SMELL) {
-			if (scaleImageMode)
-				g.drawImage(smellImg, x, y, squareSize, squareSize, this);
-			else
-				g.drawImage(smellImg, x, y, this);
+		if ((data & WorldModel.SMELL) == WorldModel.SMELL) {
+			if (this.scaleImageMode) {
+				g.drawImage(this.smellImg, x, y, this.squareSize, this.squareSize, this);
+			} else {
+				g.drawImage(this.smellImg, x, y, this);
+			}
 		}
 		if ((data & WorldModel.WALL) == WorldModel.WALL) {
 			/*
-			 * g.setColor(Color.red.darker().darker()); g.fill3DRect(x, y,
-			 * squareSize, squareSize, false);
+			 * g.setColor(Color.red.darker().darker()); g.fill3DRect(x, y, squareSize,
+			 * squareSize, false);
 			 */
-			if (scaleImageMode)
-				g.drawImage(wallImg, x, y, squareSize, squareSize, this);
-			else
-				g.drawImage(wallImg, x, y, this);
-		}
-		if ((data & WorldModel.GOLD) == WorldModel.GOLD) {
-			if (scaleImageMode)
-				g.drawImage(goldImg, x, y, squareSize, squareSize, this);
-			else
-				g.drawImage(goldImg, x, y, this);
-		}
-		if ((data & WorldModel.AGENT) == WorldModel.AGENT) {
-			if (agentImg[orientation / 90] != null) {
-				if (scaleImageMode)
-					g.drawImage(agentImg[orientation / 90], x, y, squareSize,
-							squareSize, this);
-				else
-					g.drawImage(agentImg[orientation / 90], x, y, this);
+			if (this.scaleImageMode) {
+				g.drawImage(this.wallImg, x, y, this.squareSize, this.squareSize, this);
+			} else {
+				g.drawImage(this.wallImg, x, y, this);
 			}
 		}
-		if (((data & WorldModel.WUMPUS) == WorldModel.WUMPUS)
-				&& worldModel.wumpusIsAlive()) {
-			if (scaleImageMode)
-				g.drawImage(wumpusImg, x, y, squareSize, squareSize, this);
-			else
-				g.drawImage(wumpusImg, x, y, this);
+		if ((data & WorldModel.GOLD) == WorldModel.GOLD) {
+			if (this.scaleImageMode) {
+				g.drawImage(this.goldImg, x, y, this.squareSize, this.squareSize, this);
+			} else {
+				g.drawImage(this.goldImg, x, y, this);
+			}
 		}
-		if ((data & worldModel.START) == WorldModel.START) {
+		if ((data & WorldModel.AGENT) == WorldModel.AGENT) {
+			if (this.agentImg[orientation / 90] != null) {
+				if (this.scaleImageMode) {
+					g.drawImage(this.agentImg[orientation / 90], x, y, this.squareSize, this.squareSize, this);
+				} else {
+					g.drawImage(this.agentImg[orientation / 90], x, y, this);
+				}
+			}
+		}
+		if (((data & WorldModel.WUMPUS) == WorldModel.WUMPUS) && this.worldModel.wumpusIsAlive()) {
+			if (this.scaleImageMode) {
+				g.drawImage(this.wumpusImg, x, y, this.squareSize, this.squareSize, this);
+			} else {
+				g.drawImage(this.wumpusImg, x, y, this);
+			}
+		}
+		if ((data & WorldModel.START) == WorldModel.START) {
 			g.setColor(Color.red);
-			g.drawRect(x, y, squareSize - 1, squareSize - 1);
+			g.drawRect(x, y, this.squareSize - 1, this.squareSize - 1);
 		}
 	}
 
 	public void setZoom(int zoom) {
 		if ((zoom != this.zoom) && (zoom > 0)) {
 			this.zoom = zoom;
-			offGraphics = null;
+			this.offGraphics = null;
 			repaint();
 		}
 	}
 
 	/**
 	 * set focus position
-	 * 
-	 * @param x
-	 *            is square position x coord
-	 * @param y
-	 *            is square pos y coord.
+	 *
+	 * @param x is square position x coord
+	 * @param y is square pos y coord.
 	 */
 	public void setFocus(int x, int y) {
-		focus = new Point(x, y);
+		this.focus = new Point(x, y);
 		repaint();
 	}
 
 	public Point getFocus() {
-		return focus;
+		return this.focus;
 	}
 
 	public int getZoom() {
-		return zoom;
+		return this.zoom;
 	}
 
 	public int getXFit() {
-		return xFit;
+		return this.xFit;
 	}
 
 	public int getYFit() {
-		return yFit;
+		return this.yFit;
 	}
 
+	@Override
 	public boolean mouseDown(Event evt, int x, int y) {
-		mouseStart = canvasToCave(x, y);
-		dragStart = new Point(x, y);
-		return (mouseStart == null) ? false : true;
+		this.mouseStart = canvasToCave(x, y);
+		this.dragStart = new Point(x, y);
+		return (this.mouseStart == null) ? false : true;
 	}
 
+	@Override
 	public boolean mouseDrag(Event evt, int x, int y) {
-		if ((mouseStart != null) && drawSpace.inside(x, y)) {
-			dragEnd = new Point(x, y);
+		if ((this.mouseStart != null) && this.drawSpace.inside(x, y)) {
+			this.dragEnd = new Point(x, y);
 			repaint();
 			return true;
 		} else {
@@ -351,93 +351,92 @@ class WumpusCanvas extends Canvas {
 		}
 	}
 
+	@Override
 	public boolean mouseUp(Event evt, int x, int y) {
 		boolean change;
-		if (drawSpace.inside(x, y)) {
+		if (this.drawSpace.inside(x, y)) {
 			Point targetPoint = canvasToCave(x, y);
-			if ((mouseStart != null) && !targetPoint.equals(mouseStart)) {
-				Rectangle target = new Rectangle(Math.min(mouseStart.x,
-						targetPoint.x), Math.min(mouseStart.y, targetPoint.y),
-						Math.max(targetPoint.x - mouseStart.x, mouseStart.x
-								- targetPoint.x), Math.max(targetPoint.y
-								- mouseStart.y, mouseStart.y - targetPoint.y));
-				change = wcListener.handleMultiSquareEvent(target, evt) || true;
+			if ((this.mouseStart != null) && !targetPoint.equals(this.mouseStart)) {
+				Rectangle target = new Rectangle(Math.min(this.mouseStart.x, targetPoint.x),
+						Math.min(this.mouseStart.y, targetPoint.y),
+						Math.max(targetPoint.x - this.mouseStart.x, this.mouseStart.x - targetPoint.x),
+						Math.max(targetPoint.y - this.mouseStart.y, this.mouseStart.y - targetPoint.y));
+				change = this.wcListener.handleMultiSquareEvent(target, evt) || true;
 			} else {
-				change = wcListener.handleSquareEvent(targetPoint, evt);
+				change = this.wcListener.handleSquareEvent(targetPoint, evt);
 			}
-			dragStart = null;
-			dragEnd = null;
-			mouseStart = null;
+			this.dragStart = null;
+			this.dragEnd = null;
+			this.mouseStart = null;
 			if (change) {
 				repaint();
-				wcListener.update();
+				this.wcListener.update();
 				return true;
 			} else {
 				return false;
 			}
-		} else if (zoomIn.inside(x, y)) {
-			setZoom(zoom - 1);
-			wcListener.update();
+		} else if (this.zoomIn.inside(x, y)) {
+			setZoom(this.zoom - 1);
+			this.wcListener.update();
 			return true;
-		} else if (zoomUit.inside(x, y)) {
-			setZoom(zoom + 1);
-			wcListener.update();
+		} else if (this.zoomUit.inside(x, y)) {
+			setZoom(this.zoom + 1);
+			this.wcListener.update();
 			return true;
 		} else {
 			return false;
 		}
 	}
 
+	@Override
 	public Dimension minimumSize() {
 		return new Dimension(100, 100);
 	}
 
+	@Override
 	public Dimension preferredSize() {
 		return minimumSize();
 	}
 
 	/**
 	 * Check if a point is visible in the view right now.
-	 * 
-	 * @param x
-	 *            is point x
-	 * @param y
-	 *            is point y
+	 *
+	 * @param x is point x
+	 * @param y is point y
 	 * @return true if visible, false if not visible.
 	 */
 	public boolean isVisible(int x, int y) {
 		// code ripped out of draw function.
-		drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
-		center = new Point((drawSpace.width) / 2 + drawSpace.x,
-				(drawSpace.height) / 2 + drawSpace.y);
-		if (scaleImageMode) {
-			squareSize = Math.min(drawSpace.width, drawSpace.height)
-					/ (zoom + 1);
+		this.drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
+		this.center = new Point((this.drawSpace.width) / 2 + this.drawSpace.x,
+				(this.drawSpace.height) / 2 + this.drawSpace.y);
+		if (this.scaleImageMode) {
+			this.squareSize = Math.min(this.drawSpace.width, this.drawSpace.height) / (this.zoom + 1);
 		} else {
-			squareSize = 50;
+			this.squareSize = 50;
 		}
-		xFit = drawSpace.width / squareSize + 3;
-		yFit = drawSpace.height / squareSize + 3;
+		this.xFit = this.drawSpace.width / this.squareSize + 3;
+		this.yFit = this.drawSpace.height / this.squareSize + 3;
 
-		int xmin = focus.x - (xFit - 1) / 2;
-		int xmax = focus.x + (xFit + 1) / 2;
-		int ymin = focus.y - (yFit - 1) / 2;
-		int ymax = focus.y + (yFit + 1) / 2;
+		int xmin = this.focus.x - (this.xFit - 1) / 2;
+		int xmax = this.focus.x + (this.xFit + 1) / 2;
+		int ymin = this.focus.y - (this.yFit - 1) / 2;
+		int ymax = this.focus.y + (this.yFit + 1) / 2;
 
 		return x > xmin && x < xmax && y > ymin && y < ymax;
 
 	}
 
 	private Point canvasToCave(int x, int y) {
-		if (drawSpace.inside(x, y)) {
-			int squarex = (x - center.x - squareSize / 2) / squareSize
-					+ focus.x;
-			int squarey = -(y - center.y - squareSize / 2) / squareSize
-					+ focus.y;
-			if (x > center.x + squareSize / 2)
+		if (this.drawSpace.inside(x, y)) {
+			int squarex = (x - this.center.x - this.squareSize / 2) / this.squareSize + this.focus.x;
+			int squarey = -(y - this.center.y - this.squareSize / 2) / this.squareSize + this.focus.y;
+			if (x > this.center.x + this.squareSize / 2) {
 				squarex++;
-			if (y > center.y + squareSize / 2)
+			}
+			if (y > this.center.y + this.squareSize / 2) {
 				squarey--;
+			}
 			return new Point(squarex, squarey);
 		} else {
 			return null;

@@ -9,8 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jan Misker Wouter: WorldModel contains a "map" of the world. It can
@@ -20,7 +20,6 @@ import java.util.Hashtable;
  *         whether the agent is still alive, agentIsAlive(), based on the board
  *         situation.
  */
-
 public class WorldModel {
 	public static final int CLEAR = 0x0;
 	public static final int GROUND = 0x1;
@@ -35,17 +34,16 @@ public class WorldModel {
 	public static final int VISITED = 0x200;
 	public static final int OK = 0x400;
 	public static final String HEADER = "WumpusWorldModelFile0.9\n";
-	private Hashtable cave;
+	private Map<Point, Integer> cave;
 	private Rectangle bounds;
 	// Position and status of several items in Wumpus World.
 	private Point agent, wumpus, start, gold;
 	private int fAgentOrientation;
-	private boolean fAgentHasArrow = true, fAgentClimbedOut = false,
-			fAgentHasGold = false, fWumpusIsAlive = true;
+	private boolean fAgentHasArrow = true, fAgentClimbedOut = false, fAgentHasGold = false, fWumpusIsAlive = true;
 
 	public WorldModel() {
-		cave = new Hashtable();
-		bounds = new Rectangle(1, 1, 1, 1);
+		this.cave = new HashMap<>();
+		this.bounds = new Rectangle(1, 1, 1, 1);
 		setStartLocation(new Point(0, 0));
 		setGoldLocation(new Point(2, 2));
 		reset();
@@ -54,16 +52,16 @@ public class WorldModel {
 	public void reset() {
 		setAgentOrientation(0);
 		setAgentLocation(getStartLocation());
-		fAgentHasArrow = true;
-		fAgentHasGold = false;
-		fAgentClimbedOut = false;
-		fWumpusIsAlive = true;
+		this.fAgentHasArrow = true;
+		this.fAgentHasGold = false;
+		this.fAgentClimbedOut = false;
+		this.fWumpusIsAlive = true;
 
 		removeBreeze();
 		addBreeze();
 		removeSmell();
 		addSmell();
-		setSquare(gold, GOLD | getSquare(gold));
+		setSquare(this.gold, GOLD | getSquare(this.gold));
 	}
 
 	public void addItem(int x, int y, int item) {
@@ -71,7 +69,7 @@ public class WorldModel {
 	}
 
 	public void addItem(Point square, int item) {
-		Integer oldData = (Integer) cave.get(square);
+		Integer oldData = this.cave.get(square);
 		if (oldData == null) {
 			oldData = new Integer(GROUND);
 		}
@@ -79,10 +77,10 @@ public class WorldModel {
 	}
 
 	public void removeItem(Point square, int item) {
-		if (cave.get(square) == null) {
+		if (this.cave.get(square) == null) {
 			return;
 		}
-		Integer oldData = (Integer) cave.get(square);
+		Integer oldData = this.cave.get(square);
 		if ((item == GROUND) || (item == CLEAR)) {
 			setSquare(square, CLEAR);
 		} else {
@@ -91,27 +89,26 @@ public class WorldModel {
 	}
 
 	public int getSquare(Point square) {
-		Object data = cave.get(square);
-		if (data == null)
+		Object data = this.cave.get(square);
+		if (data == null) {
 			return CLEAR;
-		else
+		} else {
 			return ((Integer) data).intValue();
+		}
 	}
 
 	/**
 	 * Check if square contains given item.
-	 * 
-	 * @param square
-	 *            is position on the grid
-	 * @param item
-	 *            is item that might be at location.
+	 *
+	 * @param square is position on the grid
+	 * @param item   is item that might be at location.
 	 * @return true if given grid square contains the item
 	 */
 	public boolean contains(Point square, int item) {
 		int tmp = getSquare(square);
-		if (tmp == CLEAR)
+		if (tmp == CLEAR) {
 			return false;
-		else {
+		} else {
 			return (tmp & item) == item;
 		}
 	}
@@ -122,173 +119,175 @@ public class WorldModel {
 
 	public void setSquare(Point square, int data) {
 		// System.out.println("setSquare "+data+" at "+square);
-		if (square.x < bounds.x) {
-			bounds.width += bounds.x - square.x;
-			bounds.x = square.x;
+		if (square.x < this.bounds.x) {
+			this.bounds.width += this.bounds.x - square.x;
+			this.bounds.x = square.x;
 		}
-		if (square.x >= bounds.width + bounds.x) {
-			bounds.width = square.x - bounds.x + 1;
+		if (square.x >= this.bounds.width + this.bounds.x) {
+			this.bounds.width = square.x - this.bounds.x + 1;
 		}
-		if (square.y < bounds.y) {
-			bounds.height += bounds.y - square.y;
-			bounds.y = square.y;
+		if (square.y < this.bounds.y) {
+			this.bounds.height += this.bounds.y - square.y;
+			this.bounds.y = square.y;
 		}
-		if (square.y >= bounds.height + bounds.y) {
-			bounds.height = square.y - bounds.y + 1;
+		if (square.y >= this.bounds.height + this.bounds.y) {
+			this.bounds.height = square.y - this.bounds.y + 1;
 		}
-		cave.put(square, new Integer(data));
+		this.cave.put(square, new Integer(data));
 	}
 
 	public Rectangle getBounds() {
-		return bounds;
+		return this.bounds;
 	}
 
 	public void setAgentLocation(Point p) {
-		if (agent == null) {
-			agent = new Point(p.x, p.y);
-			addItem(agent, AGENT);
+		if (this.agent == null) {
+			this.agent = new Point(p.x, p.y);
+			addItem(this.agent, AGENT);
 			return;
 		}
-		removeItem(agent, AGENT);
-		agent = new Point(p.x, p.y);
-		addItem(agent, AGENT);
+		removeItem(this.agent, AGENT);
+		this.agent = new Point(p.x, p.y);
+		addItem(this.agent, AGENT);
 	}
 
 	public Point getAgentLocation() {
-		if (agent == null)
+		if (this.agent == null) {
 			return null;
-		return new Point(agent.x, agent.y);
+		}
+		return new Point(this.agent.x, this.agent.y);
 	}
 
 	public void setGoldLocation(Point p) {
-		if (gold == null) {
-			gold = new Point(p.x, p.y);
-			addItem(gold, GOLD);
+		if (this.gold == null) {
+			this.gold = new Point(p.x, p.y);
+			addItem(this.gold, GOLD);
 			return;
 		}
-		removeItem(gold, GOLD);
-		gold = new Point(p.x, p.y);
-		addItem(gold, GOLD);
+		removeItem(this.gold, GOLD);
+		this.gold = new Point(p.x, p.y);
+		addItem(this.gold, GOLD);
 	}
 
 	public Point getGoldLocation() {
-		if (gold == null)
+		if (this.gold == null) {
 			return null;
-		return new Point(gold.x, gold.y);
+		}
+		return new Point(this.gold.x, this.gold.y);
 	}
 
 	public void setStartLocation(Point p) {
-		if (start == null) {
-			start = new Point(p.x, p.y);
-			addItem(start, START);
+		if (this.start == null) {
+			this.start = new Point(p.x, p.y);
+			addItem(this.start, START);
 			return;
 		}
-		removeItem(start, START);
-		start = new Point(p.x, p.y);
-		addItem(start, START);
+		removeItem(this.start, START);
+		this.start = new Point(p.x, p.y);
+		addItem(this.start, START);
 	}
 
 	public Point getStartLocation() {
-		if (start == null)
+		if (this.start == null) {
 			return null;
-		return new Point(start.x, start.y);
+		}
+		return new Point(this.start.x, this.start.y);
 	}
 
 	public void setWumpusLocation(Point p) {
-		if (wumpus == null) {
-			wumpus = new Point(p.x, p.y);
-			addItem(wumpus, WUMPUS);
+		if (this.wumpus == null) {
+			this.wumpus = new Point(p.x, p.y);
+			addItem(this.wumpus, WUMPUS);
 			return;
 		}
-		removeItem(wumpus, WUMPUS);
-		wumpus = new Point(p.x, p.y);
-		addItem(wumpus, WUMPUS);
+		removeItem(this.wumpus, WUMPUS);
+		this.wumpus = new Point(p.x, p.y);
+		addItem(this.wumpus, WUMPUS);
 	}
 
 	public Point getWumpusLocation() {
-		if (wumpus == null)
+		if (this.wumpus == null) {
 			return null;
-		return new Point(wumpus.x, wumpus.y);
+		}
+		return new Point(this.wumpus.x, this.wumpus.y);
 	}
 
 	public void setAgentOrientation(int o) {
-		fAgentOrientation = o % 360;
+		this.fAgentOrientation = o % 360;
 	}
 
 	public int getAgentOrientation() {
-		return fAgentOrientation;
+		return this.fAgentOrientation;
 	}
 
 	public void setAgentHasArrow(boolean b) {
-		fAgentHasArrow = b;
+		this.fAgentHasArrow = b;
 	}
 
 	public boolean agentHasArrow() {
-		return fAgentHasArrow;
+		return this.fAgentHasArrow;
 	}
 
 	public void setAgentHasGold(boolean b) {
-		fAgentHasGold = b;
+		this.fAgentHasGold = b;
 	}
 
 	public boolean agentHasGold() {
-		return fAgentHasGold;
+		return this.fAgentHasGold;
 	}
 
 	public void setWumpusIsAlive(boolean b) {
-		fWumpusIsAlive = b;
+		this.fWumpusIsAlive = b;
 	}
 
 	public boolean wumpusIsAlive() {
-		return fWumpusIsAlive;
+		return this.fWumpusIsAlive;
 	}
 
 	public void setAgentClimbedOut() {
-		fAgentClimbedOut = true;
+		this.fAgentClimbedOut = true;
 	}
 
 	/**
-	 * Checks whether the game has finished. Game finishes if agent climbs out
-	 * of the cave or the agent is dead.
+	 * Checks whether the game has finished. Game finishes if agent climbs out of
+	 * the cave or the agent is dead.
 	 * <p>
 	 * Agent is dead if he is on top of living wumpus or in a pit.
 	 * </p>
-	 * 
+	 *
 	 * @author W.Pasman
 	 */
 	public boolean gameFinished() {
-		boolean finished = fAgentClimbedOut;
+		boolean finished = this.fAgentClimbedOut;
 		finished = finished || agentKilled();
 		return finished;
 	}
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean agentKilled() {
-		boolean killed = (contains(agent, WUMPUS) && fWumpusIsAlive);
-		killed = killed || contains(agent, PIT);
+		boolean killed = (contains(this.agent, WUMPUS) && this.fWumpusIsAlive);
+		killed = killed || contains(this.agent, PIT);
 		return killed;
 	}
 
 	/**
 	 * Checks whether the world is runnable as it is now.
-	 * 
+	 *
 	 * @return {@code true} if runnable; {@code false} otherwise.
 	 */
 	public boolean isRunnable() {
-		return agent != null && !agentKilled();
+		return this.agent != null && !agentKilled();
 	}
 
 	/**
 	 * DOC
 	 */
 	public void addBreeze() {
-		Enumeration squares = cave.keys();
-		while (squares.hasMoreElements()) {
-			Point square = (Point) squares.nextElement();
+		for (Point square : this.cave.keySet()) {
 			if (contains(square, PIT)) {
 				addBreeze(square.x, square.y + 1);
 				addBreeze(square.x, square.y - 1);
@@ -301,25 +300,26 @@ public class WorldModel {
 	private void addBreeze(int x, int y) {
 		Point p = new Point(x, y);
 		int old = getSquare(p);
-		if (old == CLEAR)
+		if (old == CLEAR) {
 			setSquare(p, BREEZE);
-		else
+		} else {
 			addItem(p, BREEZE);
+		}
 	}
 
 	public void removeBreeze() {
-		Enumeration squares = cave.keys();
-		while (squares.hasMoreElements()) {
-			Point square = (Point) squares.nextElement();
-			if (contains(square, BREEZE))
+		for (Point square : this.cave.keySet()) {
+			if (contains(square, BREEZE)) {
 				removeItem(square, BREEZE);
+			}
 		}
 	}
 
 	public void addSmell() {
 		Point square = getWumpusLocation();
-		if (square == null)
+		if (square == null) {
 			return;
+		}
 		addSmell(square.x, square.y + 1);
 		addSmell(square.x, square.y - 1);
 		addSmell(square.x + 1, square.y);
@@ -329,52 +329,48 @@ public class WorldModel {
 	private void addSmell(int x, int y) {
 		Point p = new Point(x, y);
 		int old = getSquare(p);
-		if (old == CLEAR)
+		if (old == CLEAR) {
 			setSquare(p, SMELL);
-		else
+		} else {
 			addItem(p, SMELL);
+		}
 	}
 
 	public void removeSmell() {
-		Enumeration squares = cave.keys();
-		while (squares.hasMoreElements()) {
-			Point square = (Point) squares.nextElement();
-			if (contains(square, SMELL))
+		for (Point square : this.cave.keySet()) {
+			if (contains(square, SMELL)) {
 				removeItem(square, SMELL);
+			}
 		}
 	}
 
 	/** Wouter: added for convenient debugging. */
 	/*
-	 * It's beyond me why Jan did not use a simple format like this for the
-	 * files as well
+	 * It's beyond me why Jan did not use a simple format like this for the files as
+	 * well
 	 */
+	@Override
 	public String toString() {
 		String result = "";
-
-		Enumeration enu = cave.keys();
-		while (enu.hasMoreElements()) {
-			Point key = (Point) enu.nextElement();
+		for (Point key : this.cave.keySet()) {
 			result = result + "point(" + key.x + "," + key.y + " ";
-			result = result + ((Integer) cave.get(key)).intValue() + ") ";
+			result = result + this.cave.get(key).intValue() + ") ";
 		}
 		return result;
 	}
 
 	public String saveTo(File file) {
 		try {
-			if (file.exists())
+			if (file.exists()) {
 				file.delete();
-			DataOutputStream fileOutput = new DataOutputStream(
-					new FileOutputStream(file));
+			}
+			DataOutputStream fileOutput = new DataOutputStream(new FileOutputStream(file));
 			fileOutput.writeUTF(HEADER);
-			Enumeration enu = cave.keys();
-			fileOutput.writeInt(cave.size());
-			while (enu.hasMoreElements()) {
-				Point key = (Point) enu.nextElement();
+			fileOutput.writeInt(this.cave.size());
+			for (Point key : this.cave.keySet()) {
 				fileOutput.writeInt(key.x);
 				fileOutput.writeInt(key.y);
-				fileOutput.writeInt(((Integer) cave.get(key)).intValue());
+				fileOutput.writeInt(this.cave.get(key).intValue());
 			}
 			fileOutput.flush();
 			fileOutput.close();
@@ -391,15 +387,16 @@ public class WorldModel {
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param input
-	 * @return 
-	 * @throws IOException 
+	 * @return
+	 * @throws IOException
 	 */
 	public WorldModel loadFrom(InputStream input) throws IOException {
 		DataInputStream fileInput = new DataInputStream(input);
-		if (!fileInput.readUTF().equals(HEADER))
+		if (!fileInput.readUTF().equals(HEADER)) {
 			throw new IOException("Invalid WorldModel-file");
+		}
 		int size = fileInput.readInt();
 		WorldModel loadModel = new WorldModel();
 		for (int i = 0; i < size; i++) {

@@ -17,7 +17,7 @@ Dependency information
 <dependency>
 	<groupId>eishub</groupId>
 	<artifactId>wumpusworld</artifactId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.3.1-SNAPSHOT</version>
 </dependency>
 ```
 

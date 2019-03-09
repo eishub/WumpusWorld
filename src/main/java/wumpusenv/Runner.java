@@ -22,14 +22,13 @@ import eis.iilang.EnvironmentState;
  * for its next action. The Runner provides a map of the world, showing the
  * position of all the items in the world. The Runner can do a single step, or
  * do automatic stepping (2 steps per second).
- * 
+ *
  * @see WorldModel
  * @see WumpusAgent
  * @see TheGame
  */
 
 public class Runner extends Panel implements Listener {
-
 	private static final long serialVersionUID = -6170967833446044717L;
 
 	// owner
@@ -50,8 +49,7 @@ public class Runner extends Panel implements Listener {
 	private WorldModel realModel;
 	private EndView endView;
 
-	private Label actionLabel, perceptLabel = new Label(
-			"percept([null,null,null,null,null], 0)");
+	private Label actionLabel, perceptLabel = new Label("percept([null,null,null,null,null], 0)");
 	private Label scoreLabel = new Label("Score: XXXX");
 	private Label timeLabel = new Label("Time: 0");
 	private Label AgentLabel = new Label("Agent:");
@@ -65,30 +63,30 @@ public class Runner extends Panel implements Listener {
 	private int time = 0;
 
 	/**
-	 * Records running or paused state. In paused state no actions can be done,
-	 * and no percepts are provided.
+	 * Records running or paused state. In paused state no actions can be done, and
+	 * no percepts are provided.
 	 */
 	private boolean paused = false;
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param owner
 	 */
 	public Runner(WumpusApp owner) {
 		super();
 		this.owner = owner;
-		realModel = new WorldModel();
-		agent = new WumpusAgent();
+		this.realModel = new WorldModel();
+		this.agent = new WumpusAgent();
 
-		if(owner.isGuiVisible()) { 
+		if (owner.isGuiVisible()) {
 			setLayout(new BorderLayout());
-			endView = new EndView(this);
-			viewport = setupViews();
-			controls = setupGameStatePanel();
-			add("Center", viewport);
-			add("East", controls);
-			add("South", perceptLabel);
+			this.endView = new EndView(this);
+			this.viewport = setupViews();
+			this.controls = setupGameStatePanel();
+			add("Center", this.viewport);
+			add("East", this.controls);
+			add("South", this.perceptLabel);
 			showView(REALVIEW);
 			resize(500, 400);
 			show();
@@ -97,47 +95,43 @@ public class Runner extends Panel implements Listener {
 
 	/**
 	 * Returns the Wumpus entity.
-	 * 
+	 *
 	 * @return Wumpus agent (controllable entity).
 	 */
 	public WumpusAgent getAgent() {
-		return agent;
+		return this.agent;
 	}
 
 	public int getTime() {
-		return time;
+		return this.time;
 	}
 
 	public WumpusWorldPercept getCurrentPercept() {
-		return game.getPercept(realModel);
+		return this.game.getPercept(this.realModel);
 	}
 
 	/**
-	 * Returns true if the game is running, i.e. the runner view is visible and
-	 * the game has not yet finished (agent climbed out or died), otherwise
-	 * false.
-	 * 
+	 * Returns true if the game is running, i.e. the runner view is visible and the
+	 * game has not yet finished (agent climbed out or died), otherwise false.
+	 *
 	 * @return {@code true} if the game is running; {@code false} otherwise.
 	 */
 	public boolean gameRunning() {
-		return !realModel.gameFinished() && !paused;
+		return !this.realModel.gameFinished() && !this.paused;
 	}
 
 	/**
-	 * Puts Wumpus game runner into paused or non-paused (started) mode. Note
-	 * that this does not change the viewer from EDITOR to RUNNER.
-	 * 
-	 * @param value
-	 *            mode to put runner in: true is paused, false is started.
+	 * Puts Wumpus game runner into paused or non-paused (started) mode. Note that
+	 * this does not change the viewer from EDITOR to RUNNER.
+	 *
+	 * @param value mode to put runner in: true is paused, false is started.
 	 */
 	public void setPaused(boolean value) {
-		paused = value;
-		if (paused) {
-			WumpusWorld.getInstance()
-					.notifyStateChange(EnvironmentState.PAUSED);
+		this.paused = value;
+		if (this.paused) {
+			WumpusWorld.getInstance().notifyStateChange(EnvironmentState.PAUSED);
 		} else {
-			WumpusWorld.getInstance().notifyStateChange(
-					EnvironmentState.RUNNING);
+			WumpusWorld.getInstance().notifyStateChange(EnvironmentState.RUNNING);
 		}
 	}
 
@@ -145,165 +139,167 @@ public class Runner extends Panel implements Listener {
 	 * Resets the runner view and Wumpus game (score, time, initial state).
 	 */
 	public void reset() {
-		game.reset();
-		realModel.reset();
-		time = 0;
-		paused = false;
-		timeLabel.setText("Time: 0");
-		scoreLabel.setText("Score: 0");
-		perceptLabel.setText("percept([null,null,null,null,null], 0)");
-		actionLabel.setText("Action:");
+		this.game.reset();
+		this.realModel.reset();
+		this.time = 0;
+		this.paused = false;
+		this.timeLabel.setText("Time: 0");
+		this.scoreLabel.setText("Score: 0");
+		this.perceptLabel.setText("percept([null,null,null,null,null], 0)");
+		this.actionLabel.setText("Action:");
 		showView(REALVIEW);
 		// notify environment listeners. HACK see #1539
 		WumpusWorld.getInstance().notifyStateChange(EnvironmentState.PAUSED);
 	}
 
 	public void setRealModel(WorldModel real) {
-		realModel = real;
-		if (owner.isGuiVisible()) {
-			realViewer.recenter();
-			realViewer.update();
+		this.realModel = real;
+		if (this.owner.isGuiVisible()) {
+			this.realViewer.recenter();
+			this.realViewer.update();
 		}
 	}
 
 	/**
-	 * nextStep does next perception-action cycle step. We want
-	 * perception-action cycle to halt between percept and action. therefore we
-	 * pre-initialized the agent with the perception, and wait till nextstep
-	 * button is pressed in our interface before calling the agent's actin.
-	 * After doing the action, we pre-initialize the next percept.
-	 * 
+	 * nextStep does next perception-action cycle step. We want perception-action
+	 * cycle to halt between percept and action. therefore we pre-initialized the
+	 * agent with the perception, and wait till nextstep button is pressed in our
+	 * interface before calling the agent's actin. After doing the action, we
+	 * pre-initialize the next percept.
+	 *
 	 * We allow actions to be taken even when the game is not visible. This is
-	 * because the GOAL system may assume that the action can be done just
-	 * because it just succeeded in the check whether the game is visible.
-	 * However the visibility might have changed in between.
+	 * because the GOAL system may assume that the action can be done just because
+	 * it just succeeded in the check whether the game is visible. However the
+	 * visibility might have changed in between.
 	 */
 	public void nextStep(String pAction) {
 
 		// First, check whether game has finished already.
-		if (realModel.gameFinished()) {
+		if (this.realModel.gameFinished()) {
 			return;
 		}
 
-		time++;
+		this.time++;
 
 		// Attempt to execute action pAction.
-		int lActionNr = agent.action(pAction);
-		game.Action(lActionNr, realModel);
-		
+		int lActionNr = this.agent.action(pAction);
+		this.game.Action(lActionNr, this.realModel);
+
 		// Check whether WE'RE FINISHED
-		if (realModel.gameFinished()) {
-			owner.notifyObservers(EnvironmentState.INITIALIZING);
+		if (this.realModel.gameFinished()) {
+			this.owner.notifyObservers(EnvironmentState.INITIALIZING);
 			WumpusWorld.getInstance().unregisterEntity();
 		}
 
-		if (!owner.isGuiVisible()) {
+		if (!this.owner.isGuiVisible()) {
 			return;
 		}
 
 		// update state panel
-		timeLabel.setText("Time:" + time);
-		hasArrowLabel
-				.setText(realModel.agentHasArrow() ? HASARROW : HASNOARROW);
-		hasGoldLabel.setText(realModel.agentHasGold() ? HASGOLD : HASNOGOLD);
+		this.timeLabel.setText("Time:" + this.time);
+		this.hasArrowLabel.setText(this.realModel.agentHasArrow() ? HASARROW : HASNOARROW);
+		this.hasGoldLabel.setText(this.realModel.agentHasGold() ? HASGOLD : HASNOGOLD);
 
-		actionLabel.setText("Action: " + pAction);
-		scoreLabel.setText("Score: " + game.getScore());
+		this.actionLabel.setText("Action: " + pAction);
+		this.scoreLabel.setText("Score: " + this.game.getScore());
 
 		// Check whether game has finished, and, if so, show corresponding end
 		// view
-		if (realModel.gameFinished()) {
-			if (realModel.getAgentLocation().equals(
-					realModel.getWumpusLocation()))
-				endView.setState(EndView.WUMPUS);
-			else if (realModel.contains(realModel.getAgentLocation(),
-					WorldModel.PIT))
-				endView.setState(EndView.PIT);
-			else if (realModel.agentHasGold())
-				endView.setState(EndView.RICH);
-			else
-				endView.setState(EndView.WUSS);
+		if (this.realModel.gameFinished()) {
+			if (this.realModel.getAgentLocation().equals(this.realModel.getWumpusLocation())) {
+				this.endView.setState(EndView.WUMPUS);
+			} else if (this.realModel.contains(this.realModel.getAgentLocation(), WorldModel.PIT)) {
+				this.endView.setState(EndView.PIT);
+			} else if (this.realModel.agentHasGold()) {
+				this.endView.setState(EndView.RICH);
+			} else {
+				this.endView.setState(EndView.WUSS);
+			}
 			showView(ENDVIEW);
 		} else { // if not, show the updated perceptual info. perceptLabel is
 					// for the info window to inform user.
-			getCurrentPercept().setTime(time);
-			perceptLabel.setText("" + getCurrentPercept());
+			getCurrentPercept().setTime(this.time);
+			this.perceptLabel.setText("" + getCurrentPercept());
 		}
 		updateViews();
 	}
 
 	// ************************ VIEW *****************************
 	public void setScaleImagesMode(boolean b) {
-		realViewer.setScaleImagesMode(b);
+		this.realViewer.setScaleImagesMode(b);
 	}
 
 	private Panel setupViews() {
-		realViewer = new CaveView(REALVIEW, this);
-		realViewer.setZoom(7);
-		viewSelector = new CardLayout();
+		this.realViewer = new CaveView(REALVIEW, this);
+		this.realViewer.setZoom(7);
+		this.viewSelector = new CardLayout();
 
 		// viewport is used to toggle between cave view and end view.
 		Panel viewport = new Panel();
-		viewport.setLayout(viewSelector);
-		viewport.add(REALVIEW, realViewer);
-		viewport.add(ENDVIEW, endView);
+		viewport.setLayout(this.viewSelector);
+		viewport.add(REALVIEW, this.realViewer);
+		viewport.add(ENDVIEW, this.endView);
 		return viewport;
 	}
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @return
 	 */
 	private Panel setupGameStatePanel() {
 		Panel gameState = new Panel();
 		gameState.setLayout(new GridLayout(8, 1));
-		actionLabel = new Label("Action: X");
-		gameState.add(actionLabel);
-		gameState.add(scoreLabel);
-		gameState.add(timeLabel);
-		gameState.add(AgentLabel);
-		gameState.add(hasArrowLabel);
-		gameState.add(hasGoldLabel);
+		this.actionLabel = new Label("Action: X");
+		gameState.add(this.actionLabel);
+		gameState.add(this.scoreLabel);
+		gameState.add(this.timeLabel);
+		gameState.add(this.AgentLabel);
+		gameState.add(this.hasArrowLabel);
+		gameState.add(this.hasGoldLabel);
 		return gameState;
 	}
 
 	private void updateViews() {
-		realViewer.update();
-		controls.doLayout();
+		this.realViewer.update();
+		this.controls.doLayout();
 	}
 
 	private void showView(String view) {
-		viewSelector.show(viewport, view); // selects realview or endview.
+		this.viewSelector.show(this.viewport, view); // selects realview or endview.
 	}
 
+	@Override
 	public Image getImage(String name) {
-		return owner.getImage(name);
+		return this.owner.getImage(name);
 	}
 
+	@Override
 	public boolean handleSquareEvent(Point square, Event evt) {
 		return false;
 	}
 
-	public boolean handleMultiSquareEvent(java.awt.Rectangle sqaures,
-			java.awt.Event evt) {
+	@Override
+	public boolean handleMultiSquareEvent(java.awt.Rectangle sqaures, java.awt.Event evt) {
 		return false;
 	}
 
+	@Override
 	public WorldModel getModel() {
-		return realModel;
+		return this.realModel;
 	}
-	
+
 	public int getGameScore() {
-		return game.getScore();
+		return this.game.getScore();
 	}
 
 	public int getReward() {
-		return game.getReward();
+		return this.game.getReward();
 	}
 }
 
 class EndView extends Canvas {
+	private static final long serialVersionUID = 1L;
 	public static final int WUMPUS = 0;
 	public static final int PIT = 1;
 	public static final int WUSS = 2;
@@ -316,15 +312,15 @@ class EndView extends Canvas {
 	}
 
 	public EndView(Runner parent) {
-		img[0] = parent.getImage("wumpusend.jpg");
-		img[1] = parent.getImage("pitend.jpg");
-		img[2] = parent.getImage("climbwuss.jpg");
-		img[3] = parent.getImage("climbgold.jpg");
+		this.img[0] = parent.getImage("wumpusend.jpg");
+		this.img[1] = parent.getImage("pitend.jpg");
+		this.img[2] = parent.getImage("climbwuss.jpg");
+		this.img[3] = parent.getImage("climbgold.jpg");
 		MediaTracker mt = new MediaTracker(this);
-		mt.addImage(img[0], 0);
-		mt.addImage(img[1], 1);
-		mt.addImage(img[2], 2);
-		mt.addImage(img[3], 3);
+		mt.addImage(this.img[0], 0);
+		mt.addImage(this.img[1], 1);
+		mt.addImage(this.img[2], 2);
+		mt.addImage(this.img[3], 3);
 		try {
 			mt.waitForAll();
 		} catch (Exception ex) {
@@ -333,9 +329,10 @@ class EndView extends Canvas {
 
 	}
 
+	@Override
 	public void paint(Graphics g) {
-		if ((state >= 0) && (state <= 3)) {
-			g.drawImage(img[state], 0, 0, this);
+		if ((this.state >= 0) && (this.state <= 3)) {
+			g.drawImage(this.img[this.state], 0, 0, this);
 		}
 	}
 }

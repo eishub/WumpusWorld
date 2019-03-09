@@ -6,7 +6,6 @@ package wumpusenv;
  * decides to do.
  */
 public class WumpusAgent {
-
 	// first perceive is at t=0
 	static int STARTTIME = 0;
 	// Time according to the agent. Perception of time is 'subjective'.
@@ -21,37 +20,38 @@ public class WumpusAgent {
 	/**
 	 * The method action returns the action number that is associated with the
 	 * action string pAction.
-	 * 
+	 *
 	 * @param action
 	 */
 	public int action(String action) {
-
 		// Advance the time
-		currentTime++;
+		this.currentTime++;
 
 		// We rely on the exact output of toString, since unpacking the term is
 		// much more work and not worth it.
-		if (action.equals("forward"))
+		if (action.equals("forward")) {
 			return TheGame.FORWARD;
-		if (action.equals("grab"))
+		} else if (action.equals("grab")) {
 			return TheGame.GRAB;
-		if (action.equals("shoot"))
+		} else if (action.equals("shoot")) {
 			return TheGame.SHOOT;
-		if (action.equals("climb"))
+		} else if (action.equals("climb")) {
 			return TheGame.CLIMB;
-		if (action.equals("turn(left)"))
+		} else if (action.equals("turn(left)")) {
 			return TheGame.TURN_LEFT;
-		if (action.equals("turn(right)"))
+		} else if (action.equals("turn(right)")) {
 			return TheGame.TURN_RIGHT;
-		return TheGame.NO_ACTION;
+		} else {
+			return TheGame.NO_ACTION;
+		}
 	}
 
 	/**
 	 * Returns the current time according to the agent.
-	 * 
+	 *
 	 * @return current time.
 	 */
 	public int getTime() {
-		return currentTime;
+		return this.currentTime;
 	}
 }

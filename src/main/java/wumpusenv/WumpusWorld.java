@@ -1,17 +1,17 @@
 /**
  Made separate environment package W.Pasman 28oct08.
- compile with 
+ compile with
 	javac -classpath ../../bin wumpusenv/*.java
- 
+
  Make jar with...
- 
+
  jar cf wumpusenv.jar wumpusenv/*.class wumpusenv/images/*
- 
+
  and move it to the appropriate position with eg
 
  mv wumpusenv.jar AI4010/
- 
- to debug, 
+
+ to debug,
  add the path to env to the build path in the project properties
  and then modify the path that you give in the MAS file.
  */
@@ -43,7 +43,7 @@ import eis.iilang.EnvironmentState;
  * Remember to set the classpath right, e.g. setenv CLASSPATH
  * $CLASSPATH\:/wumpus
  * </p>
- * 
+ *
  * <p>
  * see {link http://www-cse.uta.edu/~holder/courses/cse5361/wumpus.html}.
  * Extensive information is available on {link http
@@ -55,18 +55,13 @@ import eis.iilang.EnvironmentState;
  */
 @SuppressWarnings("serial")
 public class WumpusWorld extends Panel {
-
-	/**
-	 * 
-	 */
 	private WumpusEnvironment wumpusInterface;
 	private WumpusApp wumpusApplication = null;
 
 	/**
 	 * Main method to start Wumpus environment stand alone.
-	 * 
-	 * @param args
-	 *            DOC
+	 *
+	 * @param args DOC
 	 */
 	public static void main(String[] args) {
 		getInstance().setUp(true);
@@ -81,8 +76,8 @@ public class WumpusWorld extends Panel {
 
 	/**
 	 * WumpusWorldHolder is loaded on the first execution of
-	 * WumpusWorld.getInstance() or the first access to
-	 * WumpusWorldHolder.INSTANCE, not before.
+	 * WumpusWorld.getInstance() or the first access to WumpusWorldHolder.INSTANCE,
+	 * not before.
 	 */
 	private static class WumpusWorldHolder {
 		private static final WumpusWorld INSTANCE = new WumpusWorld();
@@ -90,7 +85,7 @@ public class WumpusWorld extends Panel {
 
 	/**
 	 * Create or get a reference to the unique singleton Wumpus world.
-	 * 
+	 *
 	 * @return singleton Wumpus world object. see Threadsafe, see: {link http
 	 *         ://en.wikipedia.org/wiki/Singleton_pattern
 	 *         #The_solution_of_Bill_Pugh}. TODO Links not working
@@ -107,15 +102,15 @@ public class WumpusWorld extends Panel {
 	}
 
 	/*
-	 * Point of making this class singleton is that we now make various EIS
-	 * methods available for other classes, e.g. Runner and WumpusApp class.
+	 * Point of making this class singleton is that we now make various EIS methods
+	 * available for other classes, e.g. Runner and WumpusApp class.
 	 */
 	/**
 	 * Registers entity with EIS interface if such an interface is available.
 	 */
 	public void registerEntity() {
-		if (wumpusInterface != null) {
-			wumpusInterface.registerEntity();
+		if (this.wumpusInterface != null) {
+			this.wumpusInterface.registerEntity();
 		}
 	}
 
@@ -123,82 +118,80 @@ public class WumpusWorld extends Panel {
 	 * Unregister entity with EIS interface if such an interface is available.
 	 */
 	public void unregisterEntity() {
-		if (wumpusInterface != null) {
-			wumpusInterface.unregisterEntity();
+		if (this.wumpusInterface != null) {
+			this.wumpusInterface.unregisterEntity();
 		}
 	}
 
 	/**
 	 * See {link WumpusEnvironment#notifyStateChange(EnvironmentEvent)}. This is
 	 * using a hard observer pattern. TODO Link is broken.
-	 * 
-	 * @param state
-	 *            is the new {@link EnvironmentState}.
-	 * 
+	 *
+	 * @param state is the new {@link EnvironmentState}.
+	 *
 	 */
 	public void notifyStateChange(EnvironmentState state) {
-		if (wumpusInterface != null) {
-			wumpusInterface.notifyStateChange(state);
+		if (this.wumpusInterface != null) {
+			this.wumpusInterface.notifyStateChange(state);
 		}
 	}
 
 	/**
 	 * Returns Wumpus application.
-	 * 
+	 *
 	 * @return wumpus application.
 	 */
 	public WumpusApp getApplication() {
-		return wumpusApplication;
+		return this.wumpusApplication;
 	}
 
 	/**
 	 * Sets up a new Wumpus world.
-	 * 
+	 *
 	 * @param guimode
 	 */
 	public void setUp(boolean guimode) {
 		// System.out.println("Setting up WUMPUS WORLD");
-		if (wumpusApplication != null) {
-			wumpusApplication.closeWindows();
+		if (this.wumpusApplication != null) {
+			this.wumpusApplication.closeWindows();
 		}
-		wumpusApplication = new WumpusApp(this, guimode);
+		this.wumpusApplication = new WumpusApp(this, guimode);
 	}
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param g
 	 */
+	@Override
 	public void paint(Graphics g) {
 		g.setColor(Color.green.darker().darker());
 		setBackground(Color.white);
-		g.drawImage(wumpusApplication.getImage("wumpus.gif"), 0, 0, this);
+		g.drawImage(this.wumpusApplication.getImage("wumpus.gif"), 0, 0, this);
 		int midden = getSize().width / 2;
 		g.setFont(new Font("Serif", Font.BOLD, 14));
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString("Wumpus", midden - fm.stringWidth("Wumpus") / 2, 15);
 		g.drawString("Applet", midden - fm.stringWidth("Applet") / 2, 30);
 		g.drawString("Stub", midden - fm.stringWidth("Stub") / 2, 45);
-		g.drawImage(wumpusApplication.getImage("agent.gif"),
-				getSize().width - 50, 0, this);
+		g.drawImage(this.wumpusApplication.getImage("agent.gif"), getSize().width - 50, 0, this);
 	}
 
 	/**
 	 * handle edit event
-	 * 
-	 * @param event
-	 *            event
+	 *
+	 * @param event event
 	 */
 	public void mouseClicked(Event event) {
-		wumpusApplication.show();
+		this.wumpusApplication.show();
 	}
 
 	/**
 	 * Closes the Wumpus world. Sets the environment state to KILLED.
 	 */
 	public void close() {
-		wumpusApplication.close();
-		wumpusApplication = null;
+		this.wumpusApplication.close();
+		this.wumpusApplication = null;
 		notifyStateChange(EnvironmentState.KILLED);
 	}
 }

@@ -11,10 +11,9 @@ import java.awt.Scrollbar;
 /**
  * CaveView is a window with zoom buttonos, scroll bars and a
  * {@link WumpusCanvas}.
- * 
+ *
  */
 class CaveView extends Panel {
-
 	private static final long serialVersionUID = 6308929665339569526L;
 
 	public String id;
@@ -25,7 +24,7 @@ class CaveView extends Panel {
 
 	/**
 	 * DOC
-	 * 
+	 *
 	 * @param id
 	 * @param caveListener
 	 */
@@ -33,69 +32,67 @@ class CaveView extends Panel {
 		super();
 		this.id = id;
 		this.caveListener = caveListener;
-		wumpusCanvas = new WumpusCanvas(this);
+		this.wumpusCanvas = new WumpusCanvas(this);
 		setLayout(new BorderLayout());
-		hbar = new Scrollbar(Scrollbar.HORIZONTAL);
-		vbar = new Scrollbar(Scrollbar.VERTICAL);
-		add("Center", wumpusCanvas);
-		add("South", hbar);
-		add("East", vbar);
+		this.hbar = new Scrollbar(Scrollbar.HORIZONTAL);
+		this.vbar = new Scrollbar(Scrollbar.VERTICAL);
+		add("Center", this.wumpusCanvas);
+		add("South", this.hbar);
+		add("East", this.vbar);
 		doScrollSet();
 	}
 
 	public boolean handleSquareEvent(java.awt.Point square, java.awt.Event evt) {
-		return caveListener.handleSquareEvent(square, evt);
+		return this.caveListener.handleSquareEvent(square, evt);
 	}
 
-	public boolean handleMultiSquareEvent(java.awt.Rectangle squares,
-			java.awt.Event evt) {
-		return caveListener.handleMultiSquareEvent(squares, evt);
+	public boolean handleMultiSquareEvent(java.awt.Rectangle squares, java.awt.Event evt) {
+		return this.caveListener.handleMultiSquareEvent(squares, evt);
 	}
 
 	public WorldModel getModel() {
-		return caveListener.getModel();
+		return this.caveListener.getModel();
 	}
 
 	public int getZoom() {
-		return wumpusCanvas.getZoom();
+		return this.wumpusCanvas.getZoom();
 	}
 
 	public void setZoom(int zoom) {
-		if (zoom != wumpusCanvas.getZoom()) {
-			wumpusCanvas.setZoom(zoom);
+		if (zoom != this.wumpusCanvas.getZoom()) {
+			this.wumpusCanvas.setZoom(zoom);
 			doScrollSet();
 		}
 	}
 
 	public void setScaleImagesMode(boolean b) {
-		wumpusCanvas.setScaleImagesMode(b);
+		this.wumpusCanvas.setScaleImagesMode(b);
 	}
 
 	public void update() {
 		doScrollSet();
-		wumpusCanvas.repaint();
+		this.wumpusCanvas.repaint();
 	}
 
 	public Image getImage(String name) {
-		return caveListener.getImage(name);
+		return this.caveListener.getImage(name);
 	}
 
 	public void doScrollSet() {
-		int bubbleX = Math.max(1, (wumpusCanvas.getXFit() - 1));
-		int bubbleY = Math.max(1, (wumpusCanvas.getYFit() - 1));
-		Rectangle bounds = caveListener.getModel(/* id */).getBounds();
-		hbar.setPageIncrement(bubbleX);
-		vbar.setPageIncrement(bubbleY);
-		hbar.setValues(wumpusCanvas.getFocus().x, bubbleX, bounds.x,
-				bounds.width + bounds.x + bubbleX - 1);
-		vbar.setValues(-wumpusCanvas.getFocus().y, bubbleY,
-				-(bounds.height + bounds.y) + 1, -bounds.y + bubbleY);
+		int bubbleX = Math.max(1, (this.wumpusCanvas.getXFit() - 1));
+		int bubbleY = Math.max(1, (this.wumpusCanvas.getYFit() - 1));
+		Rectangle bounds = this.caveListener.getModel(/* id */).getBounds();
+		this.hbar.setPageIncrement(bubbleX);
+		this.vbar.setPageIncrement(bubbleY);
+		this.hbar.setValues(this.wumpusCanvas.getFocus().x, bubbleX, bounds.x, bounds.width + bounds.x + bubbleX - 1);
+		this.vbar.setValues(-this.wumpusCanvas.getFocus().y, bubbleY, -(bounds.height + bounds.y) + 1,
+				-bounds.y + bubbleY);
 	}
 
+	@Override
 	public boolean handleEvent(Event evt) {
-		int zoom = wumpusCanvas.getZoom();
 		if (evt.target instanceof Scrollbar) {
-			wumpusCanvas.setFocus(hbar.getValue(), -vbar.getValue());
+			this.wumpusCanvas.setFocus(this.hbar.getValue(), -this.vbar.getValue());
 			return true;
 		} else {
 			return super.handleEvent(evt);
@@ -106,9 +103,9 @@ class CaveView extends Panel {
 	 * place the agent back into the center. Added W.Pasman 23feb2011 trac #434
 	 */
 	public void recenter() {
-		Point agentpos = caveListener.getModel().getAgentLocation();
-		if (!wumpusCanvas.isVisible(agentpos.x, agentpos.y)) {
-			wumpusCanvas.setFocus(agentpos.x, agentpos.y);
+		Point agentpos = this.caveListener.getModel().getAgentLocation();
+		if (!this.wumpusCanvas.isVisible(agentpos.x, agentpos.y)) {
+			this.wumpusCanvas.setFocus(agentpos.x, agentpos.y);
 		}
 	}
 }
