@@ -10,16 +10,10 @@ public class WumpusWorldPercept {
 	private boolean fBreeze, fStench, fBump, fScream, fGlitter;
 	private int time;
 
-	/**
-	 * DOC
-	 */
 	public WumpusWorldPercept() {
 		reset();
 	}
 
-	/**
-	 * DOC
-	 */
 	public void reset() {
 		this.fBreeze = this.fStench = this.fBump = this.fScream = this.fGlitter = false;
 	}
@@ -29,11 +23,11 @@ public class WumpusWorldPercept {
 	 *
 	 * @param time current time, to be added to percept.
 	 */
-	public void setTime(int time) {
+	public void setTime(final int time) {
 		this.time = time;
 	}
 
-	public void setBreeze(boolean pVal) {
+	public void setBreeze(final boolean pVal) {
 		this.fBreeze = pVal;
 	}
 
@@ -41,7 +35,7 @@ public class WumpusWorldPercept {
 		return this.fBreeze;
 	}
 
-	public void setStench(boolean pVal) {
+	public void setStench(final boolean pVal) {
 		this.fStench = pVal;
 	}
 
@@ -49,7 +43,7 @@ public class WumpusWorldPercept {
 		return this.fStench;
 	}
 
-	public void setBump(boolean pVal) {
+	public void setBump(final boolean pVal) {
 		this.fBump = pVal;
 	}
 
@@ -57,7 +51,7 @@ public class WumpusWorldPercept {
 		return this.fBump;
 	}
 
-	public void setScream(boolean pVal) {
+	public void setScream(final boolean pVal) {
 		this.fScream = pVal;
 	}
 
@@ -65,7 +59,7 @@ public class WumpusWorldPercept {
 		return this.fScream;
 	}
 
-	public void setGlitter(boolean pVal) {
+	public void setGlitter(final boolean pVal) {
 		this.fGlitter = pVal;
 	}
 
@@ -73,9 +67,6 @@ public class WumpusWorldPercept {
 		return this.fGlitter;
 	}
 
-	/**
-	 * String version of Wumpus world percept to display in environment window.
-	 */
 	@Override
 	public String toString() {
 		return "percept([" + (getBreeze() ? "breeze" : "no breeze") + "," + (getStench() ? "stench" : "no stench") + ","

@@ -6,14 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Images {
-	// Class fields
-	private Map<String, Image> fImages = new HashMap<>();
+	private final Map<String, Image> fImages = new HashMap<>();
 	private static String fPath = "wumpusenv/images"; // Wouter: HUH, does not exist and yet the stuff works??
 
-	// Class constructor
-	public Images(WumpusApp pWA) {
+	public Images(final WumpusApp pWA) {
 		// Used in WumpusApp, WumpusWorld and WumpusCanvas
-		java.net.URL u = getClass().getClassLoader().getResource(fPath + File.separator + "wumpus.gif");
+		final java.net.URL u = getClass().getClassLoader().getResource(fPath + File.separator + "wumpus.gif");
 		this.fImages.put("wumpus", pWA.getToolkit().getImage(u)); // TODO: Duplicate same code below...
 		// Used in WumpusWorld
 		this.fImages.put("agent", pWA.getToolkit().getImage(fPath + File.separator + "agent.gif"));
@@ -35,8 +33,7 @@ public class Images {
 		this.fImages.put("climbgold", pWA.getToolkit().getImage(fPath + File.separator + "climbgold.gif"));
 	}
 
-	// Class methods
-	public Image getImage(String pName) {
+	public Image getImage(final String pName) {
 		return this.fImages.get(pName);
 	}
 }

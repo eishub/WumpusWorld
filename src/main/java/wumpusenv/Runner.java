@@ -3,7 +3,6 @@ package wumpusenv;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.CardLayout;
-import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -11,6 +10,8 @@ import java.awt.Label;
 import java.awt.MediaTracker;
 import java.awt.Panel;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 
 import eis.iilang.EnvironmentState;
 
@@ -27,12 +28,11 @@ import eis.iilang.EnvironmentState;
  * @see WumpusAgent
  * @see TheGame
  */
-
 public class Runner extends Panel implements Listener {
 	private static final long serialVersionUID = -6170967833446044717L;
 
 	// owner
-	private WumpusApp owner;
+	private final WumpusApp owner;
 
 	// view
 	public static final String REALVIEW = "Real world view";
@@ -49,16 +49,18 @@ public class Runner extends Panel implements Listener {
 	private WorldModel realModel;
 	private EndView endView;
 
-	private Label actionLabel, perceptLabel = new Label("percept([null,null,null,null,null], 0)");
-	private Label scoreLabel = new Label("Score: XXXX");
-	private Label timeLabel = new Label("Time: 0");
-	private Label AgentLabel = new Label("Agent:");
-	private Label hasArrowLabel = new Label(HASARROW);
-	private Label hasGoldLabel = new Label(HASNOGOLD);
+	private Label actionLabel;
+
+	private final Label perceptLabel = new Label("percept([null,null,null,null,null], 0)");
+	private final Label scoreLabel = new Label("Score: XXXX");
+	private final Label timeLabel = new Label("Time: 0");
+	private final Label AgentLabel = new Label("Agent:");
+	private final Label hasArrowLabel = new Label(HASARROW);
+	private final Label hasGoldLabel = new Label(HASNOGOLD);
 
 	// Wumpus Game Parameters
-	private TheGame game = new TheGame();
-	private WumpusAgent agent;
+	private final TheGame game = new TheGame();
+	private final WumpusAgent agent;
 	// MASTER CLOCK
 	private int time = 0;
 
@@ -68,12 +70,7 @@ public class Runner extends Panel implements Listener {
 	 */
 	private boolean paused = false;
 
-	/**
-	 * DOC
-	 *
-	 * @param owner
-	 */
-	public Runner(WumpusApp owner) {
+	public Runner(final WumpusApp owner) {
 		super();
 		this.owner = owner;
 		this.realModel = new WorldModel();
@@ -84,12 +81,12 @@ public class Runner extends Panel implements Listener {
 			this.endView = new EndView(this);
 			this.viewport = setupViews();
 			this.controls = setupGameStatePanel();
-			add("Center", this.viewport);
-			add("East", this.controls);
-			add("South", this.perceptLabel);
+			add(BorderLayout.CENTER, this.viewport);
+			add(BorderLayout.EAST, this.controls);
+			add(BorderLayout.SOUTH, this.perceptLabel);
 			showView(REALVIEW);
-			resize(500, 400);
-			show();
+			setSize(500, 400);
+			setVisible(true);
 		}
 	}
 
@@ -126,7 +123,7 @@ public class Runner extends Panel implements Listener {
 	 *
 	 * @param value mode to put runner in: true is paused, false is started.
 	 */
-	public void setPaused(boolean value) {
+	public void setPaused(final boolean value) {
 		this.paused = value;
 		if (this.paused) {
 			WumpusWorld.getInstance().notifyStateChange(EnvironmentState.PAUSED);
@@ -152,7 +149,7 @@ public class Runner extends Panel implements Listener {
 		WumpusWorld.getInstance().notifyStateChange(EnvironmentState.PAUSED);
 	}
 
-	public void setRealModel(WorldModel real) {
+	public void setRealModel(final WorldModel real) {
 		this.realModel = real;
 		if (this.owner.isGuiVisible()) {
 			this.realViewer.recenter();
@@ -172,7 +169,7 @@ public class Runner extends Panel implements Listener {
 	 * it just succeeded in the check whether the game is visible. However the
 	 * visibility might have changed in between.
 	 */
-	public void nextStep(String pAction) {
+	public void nextStep(final String pAction) {
 
 		// First, check whether game has finished already.
 		if (this.realModel.gameFinished()) {
@@ -182,7 +179,7 @@ public class Runner extends Panel implements Listener {
 		this.time++;
 
 		// Attempt to execute action pAction.
-		int lActionNr = this.agent.action(pAction);
+		final int lActionNr = this.agent.action(pAction);
 		this.game.Action(lActionNr, this.realModel);
 
 		// Check whether WE'RE FINISHED
@@ -225,7 +222,7 @@ public class Runner extends Panel implements Listener {
 	}
 
 	// ************************ VIEW *****************************
-	public void setScaleImagesMode(boolean b) {
+	public void setScaleImagesMode(final boolean b) {
 		this.realViewer.setScaleImagesMode(b);
 	}
 
@@ -235,20 +232,15 @@ public class Runner extends Panel implements Listener {
 		this.viewSelector = new CardLayout();
 
 		// viewport is used to toggle between cave view and end view.
-		Panel viewport = new Panel();
+		final Panel viewport = new Panel();
 		viewport.setLayout(this.viewSelector);
 		viewport.add(REALVIEW, this.realViewer);
 		viewport.add(ENDVIEW, this.endView);
 		return viewport;
 	}
 
-	/**
-	 * DOC
-	 *
-	 * @return
-	 */
 	private Panel setupGameStatePanel() {
-		Panel gameState = new Panel();
+		final Panel gameState = new Panel();
 		gameState.setLayout(new GridLayout(8, 1));
 		this.actionLabel = new Label("Action: X");
 		gameState.add(this.actionLabel);
@@ -265,22 +257,22 @@ public class Runner extends Panel implements Listener {
 		this.controls.doLayout();
 	}
 
-	private void showView(String view) {
+	private void showView(final String view) {
 		this.viewSelector.show(this.viewport, view); // selects realview or endview.
 	}
 
 	@Override
-	public Image getImage(String name) {
+	public Image getImage(final String name) {
 		return this.owner.getImage(name);
 	}
 
 	@Override
-	public boolean handleSquareEvent(Point square, Event evt) {
+	public boolean handleSquareEvent(final Point square, final MouseEvent evt) {
 		return false;
 	}
 
 	@Override
-	public boolean handleMultiSquareEvent(java.awt.Rectangle sqaures, java.awt.Event evt) {
+	public boolean handleMultiSquareEvent(final Rectangle sqaures, final MouseEvent evt) {
 		return false;
 	}
 
@@ -305,32 +297,32 @@ class EndView extends Canvas {
 	public static final int WUSS = 2;
 	public static final int RICH = 3;
 	private int state = -1;
-	private Image[] img = new Image[4];
+	private final Image[] img = new Image[4];
 
-	public void setState(int state) {
+	public void setState(final int state) {
 		this.state = state;
 	}
 
-	public EndView(Runner parent) {
+	public EndView(final Runner parent) {
 		this.img[0] = parent.getImage("wumpusend.jpg");
 		this.img[1] = parent.getImage("pitend.jpg");
 		this.img[2] = parent.getImage("climbwuss.jpg");
 		this.img[3] = parent.getImage("climbgold.jpg");
-		MediaTracker mt = new MediaTracker(this);
+		final MediaTracker mt = new MediaTracker(this);
 		mt.addImage(this.img[0], 0);
 		mt.addImage(this.img[1], 1);
 		mt.addImage(this.img[2], 2);
 		mt.addImage(this.img[3], 3);
 		try {
 			mt.waitForAll();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			System.err.println(ex);
 		}
 
 	}
 
 	@Override
-	public void paint(Graphics g) {
+	public void paint(final Graphics g) {
 		if ((this.state >= 0) && (this.state <= 3)) {
 			g.drawImage(this.img[this.state], 0, 0, this);
 		}

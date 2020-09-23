@@ -35,13 +35,10 @@ public class TheGame {
 	/**
 	 * Percept after the last action has been performed.
 	 */
-	private WumpusWorldPercept fPercept = new WumpusWorldPercept();
+	private final WumpusWorldPercept fPercept = new WumpusWorldPercept();
 	private int lastscore;
 	private int score;
 
-	/**
-	 * DOC
-	 */
 	public TheGame() {
 		reset();
 	}
@@ -68,7 +65,7 @@ public class TheGame {
 	 *
 	 * @return current percept, or null if the game has finished.
 	 */
-	public WumpusWorldPercept getPercept(WorldModel pWorld) {
+	public WumpusWorldPercept getPercept(final WorldModel pWorld) {
 		if (pWorld.gameFinished()) {
 			return null;
 		}
@@ -84,7 +81,7 @@ public class TheGame {
 	 * a wall gives a "bump" percept. see calcPercepts(WorldModel).
 	 */
 
-	public void Action(int pAction, WorldModel pWorld) {
+	public void Action(final int pAction, final WorldModel pWorld) {
 		this.fPercept.reset();
 		// System.out.println("Agent asked action "+action);
 
@@ -93,9 +90,9 @@ public class TheGame {
 			return;
 		}
 
-		int lOrientation = pWorld.getAgentOrientation();
-		Point lAgent = pWorld.getAgentLocation();
-		Point lStepForward = locationAhead(lOrientation, lAgent);
+		final int lOrientation = pWorld.getAgentOrientation();
+		final Point lAgent = pWorld.getAgentLocation();
+		final Point lStepForward = locationAhead(lOrientation, lAgent);
 
 		// save the current score before updating
 		this.lastscore = this.score;
@@ -105,7 +102,6 @@ public class TheGame {
 			this.score--;
 		}
 
-		//
 		switch (pAction) {
 		case NO_ACTION:
 			break;
@@ -165,11 +161,11 @@ public class TheGame {
 	 * Compute the latest percept. This code is still messy, following original
 	 * code. Probably it would be neater to put this stuff in Sense(). IMPORTANT
 	 * NOTE: you smell stench
-	 * 
+	 *
 	 * @return the latest percept, or null if the game has finished.
 	 */
-	private void calcPercepts(WorldModel pWorld) {
-		Point agent = pWorld.getAgentLocation();
+	private void calcPercepts(final WorldModel pWorld) {
+		final Point agent = pWorld.getAgentLocation();
 
 		boolean stench = false;
 		boolean breeze = false;
@@ -188,7 +184,7 @@ public class TheGame {
 	/**
 	 * locationAhead is a help function that might be better placed in WorldModel.
 	 */
-	private static Point locationAhead(int pOrientation, Point p) {
+	private static Point locationAhead(final int pOrientation, final Point p) {
 		switch (pOrientation) {
 		case 0:
 			return new Point(p.x + 1, p.y);

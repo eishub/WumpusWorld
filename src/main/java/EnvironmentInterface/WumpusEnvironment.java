@@ -5,10 +5,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import eis.EIDefaultImpl;
+import eis.PerceptUpdate;
 import eis.exceptions.ActException;
 import eis.exceptions.EntityException;
 import eis.exceptions.ManagementException;
@@ -50,10 +54,10 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	enum InitKey {
 		FILE, GUI, UNKNOWN;
 
-		static InitKey toKey(String key) {
+		static InitKey toKey(final String key) {
 			try {
 				return valueOf(key.toUpperCase());
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				return UNKNOWN;
 			}
 		}
@@ -62,27 +66,25 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	enum WumpusAction {
 		FORWARD, GRAB, SHOOT, CLIMB, TURN, UNKNOWN;
 
-		static WumpusAction toKey(String act) {
+		static WumpusAction toKey(final String act) {
 			try {
 				return valueOf(act.toUpperCase());
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				return UNKNOWN;
 			}
 		}
-
 	}
 
 	enum WumpusQuery {
 		REWARD, UNKNOWN;
 
-		static WumpusQuery toKey(String act) {
+		static WumpusQuery toKey(final String act) {
 			try {
 				return valueOf(act.toUpperCase());
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				return UNKNOWN;
 			}
 		}
-
 	}
 
 	/**
@@ -90,7 +92,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 *
 	 * @param args arguments
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		new WumpusEnvironment();
 	}
 
@@ -103,7 +105,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 *
 	 * @throws NoEnvironmentException
 	 */
-	private void executeAction(String pAgent, String pAct) throws NoEnvironmentException {
+	private void executeAction(final String pAgent, final String pAct) throws NoEnvironmentException {
 		if (getApplication().getRunner().gameRunning()) {
 			getApplication().getRunner().nextStep(pAct);
 		} else {
@@ -130,7 +132,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 				this.addEntity(ENTITY);
 				this.entityRegistered = true;
 			}
-		} catch (EntityException e) {
+		} catch (final EntityException e) {
 			e.printStackTrace();
 		}
 	}
@@ -142,9 +144,9 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		try {
 			deleteEntity(ENTITY);
 			this.entityRegistered = false;
-		} catch (EntityException e) {
+		} catch (final EntityException e) {
 			e.printStackTrace();
-		} catch (RelationException e) {
+		} catch (final RelationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -154,11 +156,11 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 *
 	 * @param state environment event. see EIDefaultImpl. TODO Link @see not working
 	 */
-	public void notifyStateChange(EnvironmentState state) {
+	public void notifyStateChange(final EnvironmentState state) {
 		if (state != getState()) {
 			try {
 				setState(state);
-			} catch (ManagementException e) {
+			} catch (final ManagementException e) {
 				// should not happen. Throw stack trace to screen.
 				e.printStackTrace();
 			}
@@ -169,7 +171,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 * Override standard concept of state changes, too restricted.
 	 */
 	@Override
-	public boolean isStateTransitionValid(EnvironmentState oldState, EnvironmentState newState) {
+	public boolean isStateTransitionValid(final EnvironmentState oldState, final EnvironmentState newState) {
 		return true;
 	}
 
@@ -177,17 +179,17 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	/********** Implements EnvironmentInterface *******************/
 	/**************************************************************/
 
+	private final Map<String, List<Percept>> previousPercepts = new HashMap<>();
+
 	@Override
-	protected LinkedList<Percept> getAllPerceptsFromEntity(String arg0)
-			throws PerceiveException, NoEnvironmentException {
-		// EIS percepts.
-		LinkedList<Percept> percepts = new LinkedList<>();
-
-		WumpusWorldPercept wumpusWorldPercept = getApplication().getRunner().getCurrentPercept();
-
+	protected PerceptUpdate getPerceptsForEntity(final String entity) throws PerceiveException, NoEnvironmentException {
+		final WumpusWorldPercept wumpusWorldPercept = getApplication().getRunner().getCurrentPercept();
 		if (wumpusWorldPercept == null) {
 			throw new NoEnvironmentException("environment is not available");
 		}
+
+		// EIS percepts.
+		final List<Percept> percepts = new LinkedList<>();
 
 		// construct the EIS percepts from the Wumpus World percept
 		if (wumpusWorldPercept.getBreeze()) {
@@ -207,12 +209,21 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		}
 		percepts.add(new Percept("time", new Numeral(getApplication().getRunner().getTime())));
 
-		return percepts;
+		List<Percept> previous = this.previousPercepts.get(entity);
+		if (previous == null) {
+			previous = new ArrayList<>(0);
+		}
+		final List<Percept> addList = new ArrayList<>(percepts);
+		addList.removeAll(previous);
+		final List<Percept> delList = new ArrayList<>(previous);
+		delList.removeAll(percepts);
+		this.previousPercepts.put(entity, percepts);
+
+		return new PerceptUpdate(addList, delList);
 	}
 
 	@Override
 	public void kill() throws ManagementException {
-
 		// If entity is still registered, unregister entity.
 		if (this.entityRegistered) {
 			unregisterEntity();
@@ -241,43 +252,33 @@ public class WumpusEnvironment extends EIDefaultImpl {
 			return;
 		}
 		if (!getApplication().getRunner().isVisible()) {
-			// make runner visible
-			getApplication().action(null, WumpusApp.RUNNER);
+			getApplication().enableRunner();
 		} else {
 			notifyStateChange(EnvironmentState.RUNNING);
 		}
 	}
 
 	@Override
-	public void init(Map<String, Parameter> parameters) throws ManagementException {
+	public void init(final Map<String, Parameter> parameters) throws ManagementException {
 		setState(EnvironmentState.INITIALIZING);
 		reset(parameters);
 	}
 
 	@Override
-	public void reset(Map<String, Parameter> parameters) throws ManagementException {
-
+	public void reset(final Map<String, Parameter> parameters) throws ManagementException {
 		parseParameters(parameters);
 		setState(EnvironmentState.PAUSED);
 		// notify EIS interface, if present, that entity has been created
 		WumpusWorld.getInstance().registerEntity();
-
 	}
 
-	/**
-	 * DOC
-	 *
-	 * @param parameters
-	 * @throws ManagementException
-	 */
-	private void parseParameters(Map<String, Parameter> parameters) throws ManagementException {
-
+	private void parseParameters(final Map<String, Parameter> parameters) throws ManagementException {
 		// GUI is enabled by default
 		boolean guimode = true;
 		String filename = null;
 
-		for (String key : parameters.keySet()) {
-			Parameter p = parameters.get(key);
+		for (final String key : parameters.keySet()) {
+			final Parameter p = parameters.get(key);
 			switch (InitKey.toKey(key)) {
 			case FILE:
 				if (!(p instanceof Identifier)) {
@@ -304,18 +305,18 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		this.world.setInterface(this);
 		// set up needs the interface to register entity
 		this.world.setUp(guimode);
-		URL url = getClass().getProtectionDomain().getCodeSource().getLocation();
-		Path p;
+
+		final URL url = getClass().getProtectionDomain().getCodeSource().getLocation();
 		try {
-			p = Paths.get(url.toURI());
-		} catch (URISyntaxException e) {
+			final Path p = Paths.get(url.toURI());
+			final File mapfile = p.getParent().resolve(filename).toFile();
+			if (!mapfile.exists()) {
+				System.out.println("Warning: wumpus environment can't open map " + mapfile);
+			} else {
+				this.world.getApplication().getEditor().loadFrom(mapfile);
+			}
+		} catch (final URISyntaxException e) {
 			throw new ManagementException("failed to get path to " + url);
-		}
-		File mapfile = p.getParent().resolve(filename).toFile();
-		if (!mapfile.exists()) {
-			System.out.println("Warning: wumpus environment can't open map " + mapfile);
-		} else {
-			this.world.getApplication().getEditor().loadFrom(mapfile);
 		}
 	}
 
@@ -323,7 +324,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean isSupportedByEntity(Action action, String arg1) {
+	protected boolean isSupportedByEntity(final Action action, final String arg1) {
 		return WumpusAction.toKey(action.getName()) != WumpusAction.UNKNOWN;
 	}
 
@@ -331,7 +332,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean isSupportedByEnvironment(Action arg0) {
+	protected boolean isSupportedByEnvironment(final Action arg0) {
 		return true;
 	}
 
@@ -339,7 +340,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean isSupportedByType(Action arg0, String arg1) {
+	protected boolean isSupportedByType(final Action arg0, final String arg1) {
 		return true;
 	}
 
@@ -347,7 +348,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Percept performEntityAction(String entity, Action action) throws ActException {
+	protected void performEntityAction(final Action action, final String entity) throws ActException {
 		if (getState() != EnvironmentState.RUNNING) {
 			throw new ActException("environment is not running");
 		}
@@ -355,41 +356,40 @@ public class WumpusEnvironment extends EIDefaultImpl {
 			switch (WumpusAction.toKey(action.getName())) {
 			case CLIMB:
 				executeAction(entity, "climb");
-				return null;
+				break;
 			case FORWARD:
 				executeAction(entity, "forward");
-				return null;
+				break;
 			case GRAB:
 				executeAction(entity, "grab");
-				return null;
+				break;
 			case SHOOT:
 				executeAction(entity, "shoot");
-				return null;
+				break;
 			case TURN:
 				if (action.getParameters().size() != 1) {
 					throw new ActException(ActException.FAILURE,
 							"turn requires exactly 1 parameter, but received " + action.getParameters());
 				}
-				Parameter param0 = action.getParameters().get(0);
+				final Parameter param0 = action.getParameters().get(0);
 				if (!(param0 instanceof Identifier)) {
 					throw new ActException(ActException.FAILURE,
 							"turn takes Identifier as parameter but received " + param0);
 				}
-				String direction = ((Identifier) param0).getValue();
+				final String direction = ((Identifier) param0).getValue();
 				if (direction.equals("left")) {
 					executeAction(entity, "turn(left)");
-					return null;
 				} else if (direction.equals("right")) {
 					executeAction(entity, "turn(right)");
-					return null;
 				} else {
 					throw new ActException(ActException.FAILURE,
 							"turn takes only 'left' and 'right' as parameter, but received " + direction);
 				}
+				break;
 			default: // UNKNOWN
 				throw new ActException(ActException.FAILURE, "unknown action: " + action);
 			}
-		} catch (NoEnvironmentException e) {
+		} catch (final NoEnvironmentException e) {
 			throw new ActException(ActException.FAILURE, "Environment is not available");
 		}
 	}

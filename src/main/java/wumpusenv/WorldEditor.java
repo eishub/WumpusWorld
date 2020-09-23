@@ -2,38 +2,27 @@ package wumpusenv;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
-import java.awt.Event;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.TextArea;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.swing.SwingUtilities;
+
 /**
  * WorldEditor allows user to edit a world, save it and use it to play the game.
- *
- * @author Jan Misker,
  */
 public class WorldEditor extends Panel implements Listener {
 	private static final long serialVersionUID = 1L;
+
 	private CaveView worldView;
 	private WorldModel worldModel;
-	private static String ZOOMIN = "Zoom in";
-	private static String ZOOMUIT = "Zoom out";
-	private static String WALL_S = "Wall";
-	private static String PIT_S = "Pit";
-	private static String WUMPUS_S = "Wumpus";
-	private static String AGENT_S = "Agent";
-	private static String GOLD_S = "Gold";
-	private static String GROUND_S = "Ground";
-	private static String CLEAR_S = "Clear square";
-	private TextArea status;
 	private int state;
-	private WumpusApp parent;
-	private String[] stateArray = { GROUND_S, AGENT_S, WUMPUS_S, PIT_S, GOLD_S, WALL_S, CLEAR_S };
+	private final WumpusApp parent;
 	public static final int GROUND = 0;
 	public static final int AGENT = 1;
 	public static final int WUMPUS = 2;
@@ -42,45 +31,66 @@ public class WorldEditor extends Panel implements Listener {
 	public static final int WALL = 5;
 	public static final int CLEAR = 6;
 
-	public WorldEditor(WumpusApp parent) {
+	public WorldEditor(final WumpusApp parent) {
 		super();
 		this.parent = parent;
 		this.worldModel = new WorldModel();
+
 		if (parent.isGuiVisible()) {
 			setLayout(new BorderLayout());
 			this.worldView = new CaveView("WorldEditor", this);
 			this.worldView.setZoom(7);
-			this.status = new TextArea("Status", 1, 1);
-			Panel controls = new Panel();
+			final Panel controls = new Panel();
 			controls.setLayout(new GridLayout(10, 1));
-			controls.add(new Button(ZOOMIN));
-			controls.add(new Button(ZOOMUIT));
-			controls.add(new Button(WALL_S));
-			controls.add(new Button(PIT_S));
-			controls.add(new Button(AGENT_S));
-			controls.add(new Button(WUMPUS_S));
-			controls.add(new Button(GOLD_S));
-			controls.add(new Button(GROUND_S));
-			controls.add(new Button(CLEAR_S));
-			controls.add(new Button("Update"));
-			Panel controlPanel = new Panel();
+			final Button zoomIn = new Button("Zoom in");
+			zoomIn.addActionListener(e -> WorldEditor.this.worldView.setZoom(WorldEditor.this.worldView.getZoom() - 1));
+			final Button zoomOut = new Button("Zoom out");
+			zoomIn.addActionListener(e -> WorldEditor.this.worldView.setZoom(WorldEditor.this.worldView.getZoom() + 1));
+			final Button wall = new Button("Wall");
+			wall.addActionListener(e -> setState(WALL));
+			final Button pit = new Button("Pit");
+			pit.addActionListener(e -> setState(PIT));
+			final Button agent = new Button("Agent");
+			agent.addActionListener(e -> setState(AGENT));
+			final Button wumpus = new Button("Wumpus");
+			wumpus.addActionListener(e -> setState(WUMPUS));
+			final Button gold = new Button("Gold");
+			gold.addActionListener(e -> setState(GOLD));
+			final Button ground = new Button("Ground");
+			ground.addActionListener(e -> setState(GROUND));
+			final Button clear = new Button("Clear square");
+			clear.addActionListener(e -> setState(CLEAR));
+			final Button update = new Button("Update");
+			update.addActionListener(e -> {
+				WorldEditor.this.worldModel.reset();
+				WorldEditor.this.worldView.update();
+			});
+			controls.add(zoomIn);
+			controls.add(zoomOut);
+			controls.add(wall);
+			controls.add(pit);
+			controls.add(agent);
+			controls.add(wumpus);
+			controls.add(gold);
+			controls.add(ground);
+			controls.add(clear);
+			controls.add(update);
+			final Panel controlPanel = new Panel();
 			controlPanel.setLayout(new BorderLayout());
-			controlPanel.add("North", controls);
-			// controlPanel.add("Center", status);
-			add("Center", this.worldView);
-			add("East", controlPanel);
+			controlPanel.add(BorderLayout.NORTH, controls);
+			add(BorderLayout.CENTER, this.worldView);
+			add(BorderLayout.EAST, controlPanel);
 			setState(GROUND);
 		}
 	}
 
-	public void setScaleImagesMode(boolean b) {
+	public void setScaleImagesMode(final boolean b) {
 		this.worldView.setScaleImagesMode(b);
 	}
 
 	@Override
-	public boolean handleSquareEvent(Point square, Event evt) {
-		boolean right = (evt.modifiers & Event.META_MASK) == Event.META_MASK;
-		this.status.appendText("\n" + right + " (" + square.x + "," + square.y + ")");
+	public boolean handleSquareEvent(final Point square, final MouseEvent evt) {
+		final boolean right = SwingUtilities.isRightMouseButton(evt);
 		switch (this.state) {
 		case GROUND:
 			if (!right) {
@@ -111,7 +121,7 @@ public class WorldEditor extends Panel implements Listener {
 			return true;
 		case WUMPUS:
 			if (!right) {
-				Point p = this.worldModel.getWumpusLocation();
+				final Point p = this.worldModel.getWumpusLocation();
 				if (p != null) {
 					this.worldModel.removeItem(new Point(p.x, p.y + 1), WorldModel.SMELL);
 					this.worldModel.removeItem(new Point(p.x, p.y - 1), WorldModel.SMELL);
@@ -141,10 +151,7 @@ public class WorldEditor extends Panel implements Listener {
 	}
 
 	@Override
-	public boolean handleMultiSquareEvent(Rectangle squares, Event evt) {
-		boolean right = (evt.modifiers & Event.META_MASK) == Event.META_MASK;
-		this.status.appendText(
-				"\n" + right + " (" + squares.x + "," + squares.y + "," + squares.width + "," + squares.height + ")");
+	public boolean handleMultiSquareEvent(final Rectangle squares, final MouseEvent evt) {
 		switch (this.state) {
 		case GROUND:
 			for (int i = squares.x; i <= squares.x + squares.width; i++) {
@@ -176,11 +183,11 @@ public class WorldEditor extends Panel implements Listener {
 	}
 
 	@Override
-	public Image getImage(String name) {
+	public Image getImage(final String name) {
 		return this.parent.getImage(name);
 	}
 
-	public WorldModel getModel(String id) {
+	public WorldModel getModel(final String id) {
 		return this.worldModel;
 	}
 
@@ -189,85 +196,35 @@ public class WorldEditor extends Panel implements Listener {
 		return this.worldModel;
 	}
 
-	public void setModel(WorldModel model) {
+	public void setModel(final WorldModel model) {
 		this.worldModel = model;
 		this.worldModel.reset();
 		this.worldView.update();
 	}
 
-	public String saveTo(java.io.File file) {
+	public String saveTo(final java.io.File file) {
 		return this.worldModel.saveTo(file);
 	}
 
-	public String loadFrom(java.io.File file) {
+	public String loadFrom(final java.io.File file) {
 		try {
 			this.worldModel = this.worldModel.loadFrom(file);
 			this.worldView.update();
 			return "";
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			System.out.println(ex.toString());
 			return ex.toString();
 		}
 	}
 
-	/**
-	 * DOC
-	 *
-	 * @param url
-	 * @throws IOException
-	 */
-	public void loadFrom(URL url) throws IOException {
+	public void loadFrom(final URL url) throws IOException {
 		this.worldModel = this.worldModel.loadFrom(url.openStream());
 		if (this.parent.isGuiVisible()) {
 			this.worldView.update();
 		}
 	}
 
-	@Override
-	public boolean handleEvent(Event evt) {
-		return super.handleEvent(evt);
-	}
-
-	private void setState(int state) {
+	private void setState(final int state) {
 		this.state = state;
-		this.status.appendText("\n" + this.stateArray[state]);
-	}
-
-	@Override
-	public boolean action(Event evt, Object what) {
-		if (what == ZOOMIN) {
-			this.worldView.setZoom(this.worldView.getZoom() - 1);
-			return true;
-		} else if (what == ZOOMUIT) {
-			this.worldView.setZoom(this.worldView.getZoom() + 1);
-			return true;
-		} else if (what == GOLD_S) {
-			setState(GOLD);
-			return true;
-		} else if (what == PIT_S) {
-			setState(PIT);
-			return true;
-		} else if (what == AGENT_S) {
-			setState(AGENT);
-			return true;
-		} else if (what == WALL_S) {
-			setState(WALL);
-			return true;
-		} else if (what == WUMPUS_S) {
-			setState(WUMPUS);
-			return true;
-		} else if (what == CLEAR_S) {
-			setState(CLEAR);
-			return true;
-		} else if (what == GROUND_S) {
-			setState(GROUND);
-			return true;
-		} else if ("Update".equals(what)) {
-			this.worldModel.reset();
-			this.worldView.update();
-			return true;
-		} else {
-			return false;
-		}
 	}
 }

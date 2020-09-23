@@ -4,15 +4,11 @@ import java.util.prefs.Preferences;
 
 /**
  * Static object to store the WumpusWorld preferences settings
- *
- * @author W.Pasman 31aug2011
- *
  */
-
 public class WumpusSettings {
 	private enum Pref {
 		width, height, x, y
-	};
+	}
 
 	static private Preferences prefs = Preferences.userNodeForPackage(WumpusSettings.class);
 
@@ -61,7 +57,7 @@ public class WumpusSettings {
 	 * @param width  :width of the window
 	 * @param height :height of the window
 	 */
-	public static void setWindowParams(int x, int y, int width, int height) {
+	public static void setWindowParams(final int x, final int y, final int width, final int height) {
 		prefs.putInt(Pref.width.toString(), width);
 		prefs.putInt(Pref.height.toString(), height);
 		prefs.putInt(Pref.x.toString(), x);

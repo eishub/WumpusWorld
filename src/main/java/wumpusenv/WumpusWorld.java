@@ -18,11 +18,12 @@
 package wumpusenv;
 
 import java.awt.Color;
-import java.awt.Event;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Panel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import EnvironmentInterface.WumpusEnvironment;
 import eis.iilang.EnvironmentState;
@@ -53,17 +54,18 @@ import eis.iilang.EnvironmentState;
  *
  * TODO Links not working
  */
-@SuppressWarnings("serial")
 public class WumpusWorld extends Panel {
+	private static final long serialVersionUID = 1L;
+
 	private WumpusEnvironment wumpusInterface;
 	private WumpusApp wumpusApplication = null;
 
 	/**
 	 * Main method to start Wumpus environment stand alone.
 	 *
-	 * @param args DOC
+	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		getInstance().setUp(true);
 	}
 
@@ -72,6 +74,12 @@ public class WumpusWorld extends Panel {
 	 */
 	private WumpusWorld() {
 		System.out.println("Initializing the Wumpus World.");
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				WumpusWorld.this.wumpusApplication.setVisible(true);
+			}
+		});
 	}
 
 	/**
@@ -97,14 +105,10 @@ public class WumpusWorld extends Panel {
 	/**
 	 * Sets EIS interface object.
 	 */
-	public void setInterface(WumpusEnvironment wumpusInterface) {
+	public void setInterface(final WumpusEnvironment wumpusInterface) {
 		this.wumpusInterface = wumpusInterface;
 	}
 
-	/*
-	 * Point of making this class singleton is that we now make various EIS methods
-	 * available for other classes, e.g. Runner and WumpusApp class.
-	 */
 	/**
 	 * Registers entity with EIS interface if such an interface is available.
 	 */
@@ -130,7 +134,7 @@ public class WumpusWorld extends Panel {
 	 * @param state is the new {@link EnvironmentState}.
 	 *
 	 */
-	public void notifyStateChange(EnvironmentState state) {
+	public void notifyStateChange(final EnvironmentState state) {
 		if (this.wumpusInterface != null) {
 			this.wumpusInterface.notifyStateChange(state);
 		}
@@ -150,40 +154,25 @@ public class WumpusWorld extends Panel {
 	 *
 	 * @param guimode
 	 */
-	public void setUp(boolean guimode) {
-		// System.out.println("Setting up WUMPUS WORLD");
+	public void setUp(final boolean guimode) {
 		if (this.wumpusApplication != null) {
 			this.wumpusApplication.closeWindows();
 		}
 		this.wumpusApplication = new WumpusApp(this, guimode);
 	}
 
-	/**
-	 * DOC
-	 *
-	 * @param g
-	 */
 	@Override
-	public void paint(Graphics g) {
+	public void paint(final Graphics g) {
 		g.setColor(Color.green.darker().darker());
 		setBackground(Color.white);
 		g.drawImage(this.wumpusApplication.getImage("wumpus.gif"), 0, 0, this);
-		int midden = getSize().width / 2;
+		final int midden = getSize().width / 2;
 		g.setFont(new Font("Serif", Font.BOLD, 14));
-		FontMetrics fm = g.getFontMetrics();
+		final FontMetrics fm = g.getFontMetrics();
 		g.drawString("Wumpus", midden - fm.stringWidth("Wumpus") / 2, 15);
 		g.drawString("Applet", midden - fm.stringWidth("Applet") / 2, 30);
 		g.drawString("Stub", midden - fm.stringWidth("Stub") / 2, 45);
 		g.drawImage(this.wumpusApplication.getImage("agent.gif"), getSize().width - 50, 0, this);
-	}
-
-	/**
-	 * handle edit event
-	 *
-	 * @param event event
-	 */
-	public void mouseClicked(Event event) {
-		this.wumpusApplication.show();
 	}
 
 	/**

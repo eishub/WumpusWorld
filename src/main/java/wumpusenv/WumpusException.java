@@ -7,7 +7,7 @@ public class WumpusException extends Exception {
 		super();
 	}
 
-	public WumpusException(String s) {
+	public WumpusException(final String s) {
 		super(s);
 	}
 }

@@ -11,9 +11,6 @@ public class WumpusAgent {
 	// Time according to the agent. Perception of time is 'subjective'.
 	private int currentTime = STARTTIME;
 
-	/**
-	 * DOC
-	 */
 	public WumpusAgent() {
 	}
 
@@ -23,7 +20,7 @@ public class WumpusAgent {
 	 *
 	 * @param action
 	 */
-	public int action(String action) {
+	public int action(final String action) {
 		// Advance the time
 		this.currentTime++;
 

@@ -3,7 +3,6 @@ package wumpusenv;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -11,6 +10,9 @@ import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 /**
  * WumpusWorld is a grid of squares. This is a canvas with the wumpus world
@@ -18,7 +20,7 @@ import java.awt.Rectangle;
  * Wumpus World model. The hierarchy is a bit messy because the WumpusCanvas has
  * a pointer back to the parent {@link CaveView} to handle listener calllbacks.
  */
-class WumpusCanvas extends Canvas {
+class WumpusCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 	private int zoom, xFit, yFit;
 	/**
@@ -31,21 +33,16 @@ class WumpusCanvas extends Canvas {
 	private Point focus; // squares
 	private Point center; // pixels
 	private Rectangle drawSpace, zoomIn, zoomUit;
-	private CaveView wcListener;
+	private final CaveView wcListener;
 	private WorldModel worldModel;
 	private Image offImage;
 	private Graphics offGraphics;
 	private Dimension offDimension;
 	private Point mouseStart, dragStart, dragEnd;
-	private Image agentImg[], groundImg, wallImg, goldImg, wumpusImg, breezeImg, smellImg;
+	private final Image agentImg[], groundImg, wallImg, goldImg, wumpusImg, breezeImg, smellImg;
 	private boolean scaleImageMode;
 
-	/**
-	 * DOC
-	 *
-	 * @param wcListener
-	 */
-	public WumpusCanvas(CaveView wcListener) {
+	public WumpusCanvas(final CaveView wcListener) {
 		super();
 		this.wcListener = wcListener;
 		this.scaleImageMode = true;
@@ -60,17 +57,7 @@ class WumpusCanvas extends Canvas {
 		this.groundImg = getImage("ground.gif");
 		this.breezeImg = getImage("breeze.gif");
 		this.smellImg = getImage("smell.gif");
-		// agentImg[0] = getImage("agent0");
-		// agentImg[1] = getImage("agent90");
-		// agentImg[2] = getImage("agent180");
-		// agentImg[3] = getImage("agent270");
-		// wallImg = getImage("wall");
-		// goldImg = getImage("gold");
-		// wumpusImg = getImage("wumpus");
-		// groundImg = getImage("ground");
-		// breezeImg = getImage("breeze");
-		// smellImg = getImage("smell");
-		MediaTracker mt = new MediaTracker(this);
+		final MediaTracker mt = new MediaTracker(this);
 		mt.addImage(this.agentImg[0], 0);
 		mt.addImage(this.agentImg[1], 1);
 		mt.addImage(this.agentImg[2], 2);
@@ -81,18 +68,19 @@ class WumpusCanvas extends Canvas {
 		mt.addImage(this.wumpusImg, 7);
 		mt.addImage(this.breezeImg, 8);
 		mt.addImage(this.smellImg, 9);
-		// mt.addImage(wallImg, 8);
 		try {
 			mt.waitForAll();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			System.err.println(ex);
 		}
 		this.focus = new Point(1, 1);
 		this.zoom = 5;
-		this.drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
+		this.drawSpace = new Rectangle(20, 20, getSize().width - 40, getSize().height - 40);
+		addMouseListener(this);
+		addMouseMotionListener(this);
 	}
 
-	public void setScaleImagesMode(boolean b) {
+	public void setScaleImagesMode(final boolean b) {
 		if (this.scaleImageMode != b) {
 			this.scaleImageMode = b;
 			this.offGraphics = null;
@@ -100,20 +88,19 @@ class WumpusCanvas extends Canvas {
 		}
 	}
 
-	public Image getImage(String name) {
+	public Image getImage(final String name) {
 		return this.wcListener.getImage(name);
 	}
 
 	@Override
-	public void paint(Graphics g) {
+	public void paint(final Graphics g) {
 		update(g);
 	}
 
 	@Override
-	public void update(Graphics g) {
+	public void update(final Graphics g) {
 		this.worldModel = this.wcListener.getModel();
-		// System.out.println("updating wumpuscanvas ="+worldModel.toString());
-		this.drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
+		this.drawSpace = new Rectangle(20, 20, getSize().width - 40, getSize().height - 40);
 		this.center = new Point((this.drawSpace.width) / 2 + this.drawSpace.x,
 				(this.drawSpace.height) / 2 + this.drawSpace.y);
 		if (this.scaleImageMode) {
@@ -124,16 +111,15 @@ class WumpusCanvas extends Canvas {
 		this.xFit = this.drawSpace.width / this.squareSize + 3;
 		this.yFit = this.drawSpace.height / this.squareSize + 3;
 
-		if ((this.offGraphics == null) || (size().width != this.offDimension.width)
-				|| (size().height != this.offDimension.height)) {
-			this.offDimension = size();
-			this.offImage = createImage(size().width, size().height);
+		if ((this.offGraphics == null) || (getSize().width != this.offDimension.width)
+				|| (getSize().height != this.offDimension.height)) {
+			this.offDimension = getSize();
+			this.offImage = createImage(getSize().width, getSize().height);
 			this.offGraphics = this.offImage.getGraphics();
 		}
-		// offGraphics.clipRect(0, 0, size().width, size().height);
 		this.offGraphics.setFont(new Font("TimesRoman", Font.PLAIN, 12));
 		this.offGraphics.setColor(Color.white);
-		this.offGraphics.fillRect(0, 0, size().width, size().height);
+		this.offGraphics.fillRect(0, 0, getSize().width, getSize().height);
 		this.offGraphics.setColor(Color.black);
 		this.offGraphics.drawRect(this.drawSpace.x, this.drawSpace.y, this.drawSpace.width, this.drawSpace.height);
 		// offGraphics.clipRect(drawSpace.x, drawSpace.y, drawSpace.width,
@@ -148,7 +134,7 @@ class WumpusCanvas extends Canvas {
 								this.center.y - this.squareSize / 2 - (y - this.focus.y) * this.squareSize,
 								this.worldModel.getSquare(new Point(x, y)),
 								this.worldModel.getAgentOrientation() % 360);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						new ErrorDetails(e, " on drawSquare type" + this.worldModel.getSquare(new Point(x, y))
 								+ "] orient: " + this.worldModel.getAgentOrientation() % 360);
 					}
@@ -163,18 +149,20 @@ class WumpusCanvas extends Canvas {
 					Math.max(this.dragEnd.y - this.dragStart.y, this.dragStart.y - this.dragEnd.y));
 		}
 		this.offGraphics.setColor(Color.white);
-		this.offGraphics.fillRect(0, 0, size().width, 20);
-		this.offGraphics.fillRect(0, 0, 20, size().height);
-		this.offGraphics.fillRect(0, size().height - 19, size().width, 20);
-		this.offGraphics.fillRect(size().width - 19, 0, 20, size().height);
+		this.offGraphics.fillRect(0, 0, getSize().width, 20);
+		this.offGraphics.fillRect(0, 0, 20, getSize().height);
+		this.offGraphics.fillRect(0, getSize().height - 19, getSize().width, 20);
+		this.offGraphics.fillRect(getSize().width - 19, 0, 20, getSize().height);
 		drawCoor(this.offGraphics);
 		drawZoom(this.offGraphics);
 		g.drawImage(this.offImage, 0, 0, this);
 	}
 
-	private void drawGrid(Graphics g) {
-		int xStart = this.drawSpace.x + (this.center.x - this.squareSize / 2 - this.drawSpace.x) % this.squareSize;
-		int yStart = this.drawSpace.y + (this.center.y - this.squareSize / 2 - this.drawSpace.y) % this.squareSize;
+	private void drawGrid(final Graphics g) {
+		final int xStart = this.drawSpace.x
+				+ (this.center.x - this.squareSize / 2 - this.drawSpace.x) % this.squareSize;
+		final int yStart = this.drawSpace.y
+				+ (this.center.y - this.squareSize / 2 - this.drawSpace.y) % this.squareSize;
 		g.setColor(Color.lightGray);
 		for (int x = xStart; x < this.drawSpace.width + this.drawSpace.x; x += this.squareSize) {
 			g.drawLine(x, this.drawSpace.y, x, this.drawSpace.y + this.drawSpace.height);
@@ -184,8 +172,8 @@ class WumpusCanvas extends Canvas {
 		}
 	}
 
-	private void drawCoor(Graphics g) {
-		FontMetrics fm = g.getFontMetrics();
+	private void drawCoor(final Graphics g) {
+		final FontMetrics fm = g.getFontMetrics();
 		g.setColor(Color.black);
 		for (int x = this.focus.x - (this.xFit - 1) / 2; x < this.focus.x + (this.xFit + 1) / 2; x++) {
 			g.drawString(String.valueOf(x),
@@ -198,38 +186,33 @@ class WumpusCanvas extends Canvas {
 		}
 	}
 
-	private void drawZoom(Graphics g) {
-		int lineHeight = g.getFont().getSize();
-		int xOff = size().width - 15;
+	private void drawZoom(final Graphics g) {
+		final int lineHeight = g.getFont().getSize();
+		final int xOff = getSize().width - 15;
 		this.zoomUit = new Rectangle(xOff, 10, 10, 10);
 		g.setColor(Color.blue);
 		g.fillRect(xOff, 15, 10, 2);
 		g.fillRect(xOff + 4, 11, 2, 10);
 		g.setColor(Color.black);
-		g.drawString(String.valueOf(this.zoom), size().width - 15, 22 + lineHeight);
+		g.drawString(String.valueOf(this.zoom), getSize().width - 15, 22 + lineHeight);
 		g.setColor(Color.red);
 		this.zoomIn = new Rectangle(xOff, 35, 10, 10);
 		g.fillRect(xOff, 40, 10, 2);
 	}
 
-	private void drawSquare(Graphics g, int x, int y, int data, int orientation) throws Exception {
-		// System.out.println("drawSquare at "+x+","+y+". orientation="+orientation);
+	private void drawSquare(final Graphics g, final int x, final int y, final int data, final int orientation)
+			throws Exception {
 		if (this.groundImg == null) {
 			throw new Exception("ground image not available");
-		}
-		if (this.smellImg == null) {
+		} else if (this.smellImg == null) {
 			throw new Exception("smell image not available");
-		}
-		if (this.breezeImg == null) {
+		} else if (this.breezeImg == null) {
 			throw new Exception("breeze image= not available");
-		}
-		if (this.wallImg == null) {
+		} else if (this.wallImg == null) {
 			throw new Exception("wall image not available");
-		}
-		if (this.goldImg == null) {
+		} else if (this.goldImg == null) {
 			throw new Exception("gold image not available");
-		}
-		if (this.wumpusImg == null) {
+		} else if (this.wumpusImg == null) {
 			throw new Exception("wumpus image not available");
 		}
 
@@ -259,10 +242,6 @@ class WumpusCanvas extends Canvas {
 			}
 		}
 		if ((data & WorldModel.WALL) == WorldModel.WALL) {
-			/*
-			 * g.setColor(Color.red.darker().darker()); g.fill3DRect(x, y, squareSize,
-			 * squareSize, false);
-			 */
 			if (this.scaleImageMode) {
 				g.drawImage(this.wallImg, x, y, this.squareSize, this.squareSize, this);
 			} else {
@@ -298,7 +277,7 @@ class WumpusCanvas extends Canvas {
 		}
 	}
 
-	public void setZoom(int zoom) {
+	public void setZoom(final int zoom) {
 		if ((zoom != this.zoom) && (zoom > 0)) {
 			this.zoom = zoom;
 			this.offGraphics = null;
@@ -312,7 +291,7 @@ class WumpusCanvas extends Canvas {
 	 * @param x is square position x coord
 	 * @param y is square pos y coord.
 	 */
-	public void setFocus(int x, int y) {
+	public void setFocus(final int x, final int y) {
 		this.focus = new Point(x, y);
 		repaint();
 	}
@@ -334,36 +313,43 @@ class WumpusCanvas extends Canvas {
 	}
 
 	@Override
-	public boolean mouseDown(Event evt, int x, int y) {
+	public void mousePressed(final MouseEvent e) {
+		final int x = e.getX();
+		final int y = e.getY();
 		this.mouseStart = canvasToCave(x, y);
 		this.dragStart = new Point(x, y);
-		return (this.mouseStart == null) ? false : true;
 	}
 
 	@Override
-	public boolean mouseDrag(Event evt, int x, int y) {
-		if ((this.mouseStart != null) && this.drawSpace.inside(x, y)) {
+	public void mouseMoved(final MouseEvent e) {
+		// do nothing
+	}
+
+	@Override
+	public void mouseDragged(final MouseEvent e) {
+		final int x = e.getX();
+		final int y = e.getY();
+		if ((this.mouseStart != null) && this.drawSpace.contains(x, y)) {
 			this.dragEnd = new Point(x, y);
 			repaint();
-			return true;
-		} else {
-			return false;
 		}
 	}
 
 	@Override
-	public boolean mouseUp(Event evt, int x, int y) {
-		boolean change;
-		if (this.drawSpace.inside(x, y)) {
-			Point targetPoint = canvasToCave(x, y);
+	public void mouseReleased(final MouseEvent e) {
+		final int x = e.getX();
+		final int y = e.getY();
+		if (this.drawSpace.contains(x, y)) {
+			boolean change;
+			final Point targetPoint = canvasToCave(x, y);
 			if ((this.mouseStart != null) && !targetPoint.equals(this.mouseStart)) {
-				Rectangle target = new Rectangle(Math.min(this.mouseStart.x, targetPoint.x),
+				final Rectangle target = new Rectangle(Math.min(this.mouseStart.x, targetPoint.x),
 						Math.min(this.mouseStart.y, targetPoint.y),
 						Math.max(targetPoint.x - this.mouseStart.x, this.mouseStart.x - targetPoint.x),
 						Math.max(targetPoint.y - this.mouseStart.y, this.mouseStart.y - targetPoint.y));
-				change = this.wcListener.handleMultiSquareEvent(target, evt) || true;
+				change = this.wcListener.handleMultiSquareEvent(target, e) || true;
 			} else {
-				change = this.wcListener.handleSquareEvent(targetPoint, evt);
+				change = this.wcListener.handleSquareEvent(targetPoint, e);
 			}
 			this.dragStart = null;
 			this.dragEnd = null;
@@ -371,21 +357,29 @@ class WumpusCanvas extends Canvas {
 			if (change) {
 				repaint();
 				this.wcListener.update();
-				return true;
-			} else {
-				return false;
 			}
-		} else if (this.zoomIn.inside(x, y)) {
+		} else if (this.zoomIn.contains(x, y)) {
 			setZoom(this.zoom - 1);
 			this.wcListener.update();
-			return true;
-		} else if (this.zoomUit.inside(x, y)) {
+		} else if (this.zoomUit.contains(x, y)) {
 			setZoom(this.zoom + 1);
 			this.wcListener.update();
-			return true;
-		} else {
-			return false;
 		}
+	}
+
+	@Override
+	public void mouseClicked(final MouseEvent e) {
+		// do nothing
+	}
+
+	@Override
+	public void mouseEntered(final MouseEvent e) {
+		// do nothing
+	}
+
+	@Override
+	public void mouseExited(final MouseEvent e) {
+		// do nothing
 	}
 
 	@Override
@@ -405,9 +399,9 @@ class WumpusCanvas extends Canvas {
 	 * @param y is point y
 	 * @return true if visible, false if not visible.
 	 */
-	public boolean isVisible(int x, int y) {
+	public boolean isVisible(final int x, final int y) {
 		// code ripped out of draw function.
-		this.drawSpace = new Rectangle(20, 20, size().width - 40, size().height - 40);
+		this.drawSpace = new Rectangle(20, 20, getSize().width - 40, getSize().height - 40);
 		this.center = new Point((this.drawSpace.width) / 2 + this.drawSpace.x,
 				(this.drawSpace.height) / 2 + this.drawSpace.y);
 		if (this.scaleImageMode) {
@@ -418,17 +412,16 @@ class WumpusCanvas extends Canvas {
 		this.xFit = this.drawSpace.width / this.squareSize + 3;
 		this.yFit = this.drawSpace.height / this.squareSize + 3;
 
-		int xmin = this.focus.x - (this.xFit - 1) / 2;
-		int xmax = this.focus.x + (this.xFit + 1) / 2;
-		int ymin = this.focus.y - (this.yFit - 1) / 2;
-		int ymax = this.focus.y + (this.yFit + 1) / 2;
+		final int xmin = this.focus.x - (this.xFit - 1) / 2;
+		final int xmax = this.focus.x + (this.xFit + 1) / 2;
+		final int ymin = this.focus.y - (this.yFit - 1) / 2;
+		final int ymax = this.focus.y + (this.yFit + 1) / 2;
 
 		return x > xmin && x < xmax && y > ymin && y < ymax;
-
 	}
 
-	private Point canvasToCave(int x, int y) {
-		if (this.drawSpace.inside(x, y)) {
+	private Point canvasToCave(final int x, final int y) {
+		if (this.drawSpace.contains(x, y)) {
 			int squarex = (x - this.center.x - this.squareSize / 2) / this.squareSize + this.focus.x;
 			int squarey = -(y - this.center.y - this.squareSize / 2) / this.squareSize + this.focus.y;
 			if (x > this.center.x + this.squareSize / 2) {
