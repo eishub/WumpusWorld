@@ -6,7 +6,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +178,7 @@ public class WumpusEnvironment extends EIDefaultImpl {
 	/********** Implements EnvironmentInterface *******************/
 	/**************************************************************/
 
-	private final Map<String, List<Percept>> previousPercepts = new HashMap<>();
+	private List<Percept> previousPercepts = new ArrayList<>(0);
 
 	@Override
 	protected PerceptUpdate getPerceptsForEntity(final String entity) throws PerceiveException, NoEnvironmentException {
@@ -209,16 +208,12 @@ public class WumpusEnvironment extends EIDefaultImpl {
 		}
 		percepts.add(new Percept("time", new Numeral(getApplication().getRunner().getTime())));
 
-		List<Percept> previous = this.previousPercepts.get(entity);
-		if (previous == null) {
-			previous = new ArrayList<>(0);
-		}
 		final List<Percept> addList = new ArrayList<>(percepts);
-		addList.removeAll(previous);
-		final List<Percept> delList = new ArrayList<>(previous);
+		addList.removeAll(this.previousPercepts);
+		final List<Percept> delList = new ArrayList<>(this.previousPercepts);
 		delList.removeAll(percepts);
-		this.previousPercepts.put(entity, percepts);
 
+		this.previousPercepts = percepts;
 		return new PerceptUpdate(addList, delList);
 	}
 
