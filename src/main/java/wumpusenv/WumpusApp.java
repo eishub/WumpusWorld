@@ -101,12 +101,12 @@ public class WumpusApp extends Frame {
 			final Panel buttonPanel = new Panel();
 			buttonPanel.setLayout(new GridLayout(1, 3));
 			final Button worldEditor = new Button("World Editor");
-			this.mainPanel.add(worldEditor.getName(), this.worldEditor);
+			this.mainPanel.add(worldEditor.getLabel(), this.worldEditor);
 			worldEditor.addActionListener(e -> {
 				enableWorldEditor();
 			});
 			final Button runner = new Button("Runner");
-			this.mainPanel.add(runner.getName(), this.runner);
+			this.mainPanel.add(runner.getLabel(), this.runner);
 			runner.addActionListener(e -> {
 				enableRunner();
 			});
